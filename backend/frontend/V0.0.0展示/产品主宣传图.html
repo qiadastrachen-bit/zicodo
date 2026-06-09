@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>zicodo 产品主宣传图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body {
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: #ffffff;
+  }
+
+  .stage {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    background: #ffffff;
+    overflow: hidden;
+  }
+
+  /* 背景渐变装饰 */
+  .bg-gradient-1 {
+    position: absolute;
+    top: -200px;
+    right: -200px;
+    width: 800px;
+    height: 800px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.12) 0%, rgba(99, 102, 241, 0) 70%);
+  }
+  .bg-gradient-2 {
+    position: absolute;
+    bottom: -300px;
+    left: -200px;
+    width: 900px;
+    height: 900px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.10) 0%, rgba(139, 92, 246, 0) 70%);
+  }
+
+  /* 顶部标题 */
+  .top {
+    position: absolute;
+    top: 90px;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+  .brand {
+    font-size: 110px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1;
+  }
+  .subtitle {
+    margin-top: 24px;
+    font-size: 34px;
+    color: #666666;
+    font-weight: 400;
+    letter-spacing: 8px;
+  }
+  .divider {
+    width: 120px;
+    height: 4px;
+    margin: 36px auto 0;
+    background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    border-radius: 4px;
+  }
+
+  /* 中间卡通宠物 */
+  .pet-area {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 380px;
+    height: 380px;
+  }
+  .pet-glow {
+    position: absolute;
+    inset: -40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.18) 0%, rgba(255,255,255,0) 65%);
+  }
+
+  .cat {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .cat-body {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translateX(-50%);
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #a5b4fc 0%, #8b5cf6 100%);
+    box-shadow:
+      0 30px 60px rgba(99, 102, 241, 0.30),
+      inset 0 -20px 40px rgba(99, 102, 241, 0.25),
+      inset 0 20px 40px rgba(255, 255, 255, 0.20);
+  }
+  /* 耳朵 */
+  .ear-left, .ear-right {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 55px solid transparent;
+    border-right: 55px solid transparent;
+    border-bottom: 90px solid #8b5cf6;
+    filter: drop-shadow(0 6px 10px rgba(99, 102, 241, 0.25));
+  }
+  .ear-left {
+    top: 40px;
+    left: 55px;
+    transform: rotate(-25deg);
+  }
+  .ear-right {
+    top: 40px;
+    right: 55px;
+    transform: rotate(25deg);
+  }
+  .ear-inner-left, .ear-inner-right {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 28px solid transparent;
+    border-right: 28px solid transparent;
+    border-bottom: 50px solid #fbcfe8;
+  }
+  .ear-inner-left {
+    top: 70px;
+    left: 82px;
+    transform: rotate(-25deg);
+  }
+  .ear-inner-right {
+    top: 70px;
+    right: 82px;
+    transform: rotate(25deg);
+  }
+  /* 眼睛 */
+  .eye-left, .eye-right {
+    position: absolute;
+    top: 180px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #1e1b4b;
+  }
+  .eye-left { left: 108px; }
+  .eye-right { right: 108px; }
+  .eye-shine {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ffffff;
+  }
+  /* 腮红 */
+  .cheek-left, .cheek-right {
+    position: absolute;
+    top: 235px;
+    width: 40px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(244, 114, 182, 0.55);
+    filter: blur(2px);
+  }
+  .cheek-left { left: 75px; }
+  .cheek-right { right: 75px; }
+  /* 鼻子 */
+  .nose {
+    position: absolute;
+    top: 235px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 14px;
+    background: #1e1b4b;
+    border-radius: 50% 50% 60% 60% / 40% 40% 100% 100%;
+  }
+  /* 嘴巴 */
+  .mouth {
+    position: absolute;
+    top: 258px;
+    left: 50%;
+    width: 40px;
+    height: 22px;
+    transform: translateX(-50%);
+  }
+  .mouth::before, .mouth::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 20px;
+    height: 18px;
+    border: 3px solid transparent;
+    border-bottom-color: #1e1b4b;
+    border-radius: 50%;
+  }
+  .mouth::before { left: 0; }
+  .mouth::after { right: 0; }
+
+  /* 底部三个功能 */
+  .features {
+    position: absolute;
+    bottom: 140px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+  }
+  .feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 36px 44px;
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 24px;
+    width: 260px;
+    transition: all 0.3s;
+    box-shadow: 0 8px 24px rgba(99, 102, 241, 0.06);
+  }
+  .icon-box {
+    width: 80px;
+    height: 80px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #eef2ff 0%, #ede9fe 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .icon-box svg {
+    width: 40px;
+    height: 40px;
+    stroke: #6366f1;
+  }
+  .feature-label {
+    font-size: 22px;
+    font-weight: 600;
+    color: #1f2937;
+    letter-spacing: 2px;
+  }
+  .feature-sub {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #9ca3af;
+    letter-spacing: 1px;
+  }
+
+  /* 版本号 */
+  .version {
+    position: absolute;
+    bottom: 40px;
+    right: 60px;
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 22px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.10) 0%, rgba(139, 92, 246, 0.10) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    border-radius: 999px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #6366f1;
+    letter-spacing: 2px;
+  }
+  .version::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #6366f1;
+    border-radius: 50%;
+    margin-right: 10px;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+  }
+
+  .corner-brand {
+    position: absolute;
+    bottom: 48px;
+    left: 60px;
+    font-size: 16px;
+    color: #9ca3af;
+    letter-spacing: 3px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+<div class="stage">
+  <div class="bg-gradient-1"></div>
+  <div class="bg-gradient-2"></div>
+
+  <!-- 顶部标题 -->
+  <div class="top">
+    <div class="brand">zicodo</div>
+    <div class="subtitle">智能宠物互动平台</div>
+    <div class="divider"></div>
+  </div>
+
+  <!-- 中间宠物角色 -->
+  <div class="pet-area">
+    <div class="pet-glow"></div>
+    <div class="cat">
+      <div class="ear-left"></div>
+      <div class="ear-right"></div>
+      <div class="ear-inner-left"></div>
+      <div class="ear-inner-right"></div>
+      <div class="cat-body"></div>
+      <div class="eye-left"><div class="eye-shine"></div></div>
+      <div class="eye-right"><div class="eye-shine"></div></div>
+      <div class="cheek-left"></div>
+      <div class="cheek-right"></div>
+      <div class="nose"></div>
+      <div class="mouth"></div>
+    </div>
+  </div>
+
+  <!-- 底部三个功能 -->
+  <div class="features">
+    <div class="feature">
+      <div class="icon-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+          <line x1="16" x2="16" y1="2" y2="6"/>
+          <line x1="8" x2="8" y1="2" y2="6"/>
+          <line x1="3" x2="21" y1="10" y2="10"/>
+        </svg>
+      </div>
+      <div class="feature-label">智能任务管理</div>
+      <div class="feature-sub">Smart Task</div>
+    </div>
+    <div class="feature">
+      <div class="icon-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"/>
+          <path d="M8 12h.01"/>
+          <path d="M12 12h.01"/>
+          <path d="M16 12h.01"/>
+        </svg>
+      </div>
+      <div class="feature-label">AI 宠物对话</div>
+      <div class="feature-sub">AI Chat</div>
+    </div>
+    <div class="feature">
+      <div class="icon-box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="feature-label">多人协作</div>
+      <div class="feature-sub">Teamwork</div>
+    </div>
+  </div>
+
+  <!-- 版本标签 -->
+  <div class="version">V 0.0.0</div>
+  <div class="corner-brand">zicodo · 2026</div>
+</div>
+</body>
+</html>

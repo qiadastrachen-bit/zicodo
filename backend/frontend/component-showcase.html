@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>字灵 ZiLing Design System - 组件库展示</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+  :root {
+    --zl-brand: #87C8B4;
+    --zl-brand-light: #A8DED0;
+    --zl-brand-dark: #6BB5A0;
+    --zl-text-primary: #000000;
+    --zl-text-secondary: #666666;
+    --zl-text-hint: #999999;
+    --zl-bg: #FFFAF1;
+    --zl-bg-cool: #F5F5F5;
+    --zl-surface: #FFFFFF;
+    --zl-border: #E5E5E5;
+    --zl-success: #10B981;
+    --zl-warning: #F59E0B;
+    --zl-danger: #EF4444;
+    --zl-info: #3B82F6;
+    --zl-radius-sm: 8px;
+    --zl-radius-md: 12px;
+    --zl-radius-lg: 20px;
+    --zl-radius-full: 50%;
+    --zl-shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+    --zl-shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+    --zl-shadow-lg: 0 8px 32px rgba(0,0,0,0.16);
+    --zl-shadow-xl: 0 16px 48px rgba(0,0,0,0.20);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Noto Sans SC', -apple-system, sans-serif;
+    background: var(--zl-bg);
+    color: var(--zl-text-primary);
+    padding: 40px;
+    min-width: 1200px;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--zl-brand);
+  }
+
+  .page-header h1 {
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--zl-text-primary);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+
+  .page-header .subtitle {
+    font-size: 18px;
+    color: var(--zl-text-secondary);
+    font-weight: 400;
+  }
+
+  .page-header .brand-tag {
+    display: inline-block;
+    background: var(--zl-brand);
+    color: #fff;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 12px;
+  }
+
+  .section {
+    background: var(--zl-surface);
+    border-radius: var(--zl-radius-lg);
+    padding: 32px;
+    margin-bottom: 32px;
+    box-shadow: var(--zl-shadow-sm);
+    border: 1px solid var(--zl-border);
+  }
+
+  .section-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--zl-text-primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title .tag {
+    font-size: 12px;
+    background: var(--zl-brand-light);
+    color: var(--zl-brand-dark);
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+  }
+
+  .section-desc {
+    font-size: 14px;
+    color: var(--zl-text-hint);
+    margin-bottom: 24px;
+  }
+
+  .showcase-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px;
+    background: var(--zl-bg);
+    border-radius: var(--zl-radius-md);
+  }
+
+  .showcase-label {
+    font-size: 13px;
+    color: var(--zl-text-secondary);
+    font-weight: 500;
+    min-width: 100px;
+  }
+
+  /* ========== ZlButton ========== */
+  .zl-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border: none;
+    border-radius: var(--zl-radius-md);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 150ms ease;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .zl-button--small { padding: 6px 16px; font-size: 12px; min-height: 32px; }
+  .zl-button--medium { padding: 8px 24px; font-size: 14px; min-height: 40px; }
+  .zl-button--large { padding: 12px 32px; font-size: 16px; min-height: 48px; }
+
+  .zl-button--primary { background: var(--zl-brand); color: #FFFFFF; }
+  .zl-button--primary:hover { background: var(--zl-brand-dark); transform: scale(1.02); }
+
+  .zl-button--secondary { background: var(--zl-bg-cool); color: var(--zl-text-primary); }
+  .zl-button--secondary:hover { background: var(--zl-border); }
+
+  .zl-button--outline { background: transparent; color: var(--zl-brand); border: 1px solid var(--zl-brand); }
+  .zl-button--outline:hover { background: rgba(135,200,180,0.1); }
+
+  .zl-button--text { background: transparent; color: var(--zl-brand); padding-left: 6px; padding-right: 6px; }
+  .zl-button--text:hover { background: rgba(135,200,180,0.1); }
+
+  .zl-button--block { display: flex; width: 200px; }
+  .zl-button--disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  .zl-button__loading {
+    width: 16px; height: 16px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ========== ZlInput ========== */
+  .zl-input-wrapper {
+    display: flex;
+    align-items: center;
+    width: 260px;
+    height: 44px;
+    padding: 0 16px;
+    background: var(--zl-bg-cool);
+    border: 1px solid var(--zl-border);
+    border-radius: var(--zl-radius-lg);
+    transition: all 150ms ease;
+    position: relative;
+  }
+
+  .zl-input-wrapper:focus-within {
+    border-color: var(--zl-brand);
+    box-shadow: 0 0 0 3px rgba(135,200,180,0.1);
+  }
+
+  .zl-input-wrapper.has-error { border-color: var(--zl-danger); }
+  .zl-input-wrapper.is-disabled { opacity: 0.5; background: var(--zl-bg); }
+
+  .zl-input {
+    flex: 1;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: var(--zl-text-primary);
+    outline: none;
+    font-family: inherit;
+  }
+
+  .zl-input::placeholder { color: var(--zl-text-hint); }
+
+  .input-hint {
+    font-size: 12px;
+    color: var(--zl-text-hint);
+    margin-top: 6px;
+  }
+
+  /* ========== ZlCard ========== */
+  .zl-card {
+    background: var(--zl-surface);
+    transition: all 300ms cubic-bezier(0.4,0,0.2,1);
+    box-sizing: border-box;
+    width: 220px;
+  }
+
+  .zl-card--default { background: var(--zl-surface); border: 1px solid var(--zl-border); border-radius: var(--zl-radius-md); padding: 20px; }
+  .zl-card--outline { background: transparent; border: 1px solid var(--zl-border); border-radius: var(--zl-radius-md); padding: 20px; }
+  .zl-card--flat { background: var(--zl-bg-cool); border: none; border-radius: var(--zl-radius-md); padding: 20px; }
+
+  .zl-card--shadow-sm { box-shadow: var(--zl-shadow-sm); }
+  .zl-card--shadow-md { box-shadow: var(--zl-shadow-md); }
+  .zl-card--shadow-lg { box-shadow: var(--zl-shadow-lg); }
+  .zl-card--shadow-xl { box-shadow: var(--zl-shadow-xl); }
+
+  .zl-card--hoverable:hover { transform: translateY(-2px); box-shadow: var(--zl-shadow-lg); }
+  .zl-card--clickable { cursor: pointer; }
+  .zl-card--clickable:active { transform: scale(0.98); }
+
+  .card-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+  .card-text { font-size: 13px; color: var(--zl-text-secondary); line-height: 1.5; }
+
+  /* ========== ZlModal ========== */
+  .modal-preview {
+    width: 320px;
+    background: var(--zl-surface);
+    border-radius: var(--zl-radius-lg);
+    box-shadow: var(--zl-shadow-xl);
+    padding: 24px;
+    border: 1px solid var(--zl-border);
+  }
+
+  .modal-preview--bottom {
+    width: 100%;
+    max-width: 400px;
+    border-radius: var(--zl-radius-lg) var(--zl-radius-lg) 0 0;
+    position: relative;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .modal-title { font-size: 18px; font-weight: 600; }
+
+  .modal-close {
+    width: 32px; height: 32px;
+    border: none; background: transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--zl-text-hint);
+    font-size: 18px;
+  }
+
+  .modal-close:hover { background: var(--zl-bg-cool); color: var(--zl-text-primary); }
+
+  .modal-body { font-size: 14px; color: var(--zl-text-secondary); line-height: 1.6; margin-bottom: 20px; }
+
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; }
+
+  /* ========== ZlToast ========== */
+  .toast-row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .zl-toast {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: var(--zl-radius-lg);
+    font-size: 14px;
+    box-shadow: var(--zl-shadow-lg);
+  }
+
+  .zl-toast--info { background: var(--zl-text-primary); color: var(--zl-bg); }
+  .zl-toast--success { background: var(--zl-success); color: #FFFFFF; }
+  .zl-toast--warning { background: var(--zl-warning); color: var(--zl-text-primary); }
+  .zl-toast--error { background: var(--zl-danger); color: #FFFFFF; }
+
+  .toast-icon { width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+
+  /* ========== ZlTabbar ========== */
+  .tabbar-preview {
+    width: 400px;
+    height: 56px;
+    background: var(--zl-surface);
+    border-top: 1px solid var(--zl-border);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 0 0 var(--zl-radius-md) var(--zl-radius-md);
+    box-shadow: var(--zl-shadow-sm);
+  }
+
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 6px 16px;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .tab-item.active { transform: scale(1.1); }
+  .tab-item.active .tab-label { color: var(--zl-brand); font-weight: 500; }
+
+  .tab-icon { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
+
+  .tab-label { font-size: 11px; color: var(--zl-text-hint); }
+
+  .special-btn {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--zl-brand);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--zl-shadow-md);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 300;
+  }
+
+  /* ========== ZlListItem ========== */
+  .list-preview { width: 400px; border: 1px solid var(--zl-border); border-radius: var(--zl-radius-md); overflow: hidden; }
+
+  .zl-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    background: var(--zl-surface);
+    border-bottom: 1px solid var(--zl-border);
+    transition: background 150ms ease;
+    min-height: 44px;
+  }
+
+  .zl-list-item:last-child { border-bottom: none; }
+  .zl-list-item--clickable { cursor: pointer; }
+  .zl-list-item--clickable:active { background: var(--zl-bg-cool); }
+  .zl-list-item--disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .zl-list-item--small { padding: 10px 16px; min-height: 40px; }
+  .zl-list-item--large { padding: 18px 20px; min-height: 56px; }
+
+  .list-icon {
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--zl-text-secondary);
+    font-size: 18px;
+  }
+
+  .list-content { flex: 1; min-width: 0; }
+
+  .list-title { font-size: 15px; font-weight: 500; color: var(--zl-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-subtitle { font-size: 13px; color: var(--zl-text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .list-desc { font-size: 12px; color: var(--zl-text-hint); margin-top: 2px; }
+
+  .list-arrow { color: var(--zl-text-hint); font-size: 14px; margin-left: 4px; }
+
+  .list-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--zl-brand-light);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--zl-brand-dark);
+    font-size: 16px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* Color palette showcase */
+  .color-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+  .color-swatch { text-align: center; }
+  .color-box { width: 100%; height: 60px; border-radius: var(--zl-radius-md); margin-bottom: 6px; border: 1px solid var(--zl-border); }
+  .color-label { font-size: 12px; color: var(--zl-text-secondary); }
+  .color-hex { font-size: 11px; color: var(--zl-text-hint); font-family: monospace; }
+
+  .footer-note {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid var(--zl-border);
+    font-size: 13px;
+    color: var(--zl-text-hint);
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>字灵 ZiLing</h1>
+  <p class="subtitle">Design System & Component Library</p>
+  <span class="brand-tag">v1.0.0</span>
+</div>
+
+<!-- Color Palette -->
+<div class="section">
+  <div class="section-title">Color Palette <span class="tag">Design Tokens</span></div>
+  <p class="section-desc">字灵品牌色彩系统，基于 8pt Grid System</p>
+  <div class="color-grid">
+    <div class="color-swatch">
+      <div class="color-box" style="background:#87C8B4;"></div>
+      <div class="color-label">Brand</div>
+      <div class="color-hex">#87C8B4</div>
+    </div>
+    <div class="color-swatch">
+      <div class="color-box" style="background:#A8DED0;"></div>
+      <div class="color-label">Brand Light</div>
+      <div class="color-hex">#A8DED0</div>
+    </div>
+    <div class="color-swatch">
+      <div class="color-box" style="background:#6BB5A0;"></div>
+      <div class="color-label">Brand Dark</div>
+      <div class="color-hex">#6BB5A0</div>
+    </div>
+    <div class="color-swatch">
+      <div class="color-box" style="background:#FFFAF1;"></div>
+      <div class="color-label">Background</div>
+      <div class="color-hex">#FFFAF1</div>
+    </div>
+    <div class="color-swatch">
+      <div class="color-box" style="background:#FFFFFF;border:1px solid #E5E5E5;"></div>
+      <div class="color-label">Surface</div>
+      <div class="color-hex">#FFFFFF</div>
+    </div>
+    <div class="color-swatch">
+      <div class="color-box" style="background:#10B981;"></div>
+      <div class="color-label">Success</div>
+      <div class="color-hex">#10B981</div>
+    </div>
+    <div class="color-swatch">
+      <div class="color-box" style="background:#EF4444;"></div>
+      <div class="color-label">Danger</div>
+      <div class="color-hex">#EF4444</div>
+    </div>
+  </div>
+</div>
+
+<!-- ZlButton -->
+<div class="section">
+  <div class="section-title">ZlButton <span class="tag">7 Props</span></div>
+  <p class="section-desc">通用按钮组件，支持 4 种类型、3 种尺寸、loading 和 disabled 状态</p>
+
+  <div class="showcase-row">
+    <span class="showcase-label">Type</span>
+    <button class="zl-button zl-button--medium zl-button--primary">Primary</button>
+    <button class="zl-button zl-button--medium zl-button--secondary">Secondary</button>
+    <button class="zl-button zl-button--medium zl-button--outline">Outline</button>
+    <button class="zl-button zl-button--medium zl-button--text">Text</button>
+  </div>
+
+  <div class="showcase-row">
+    <span class="showcase-label">Size</span>
+    <button class="zl-button zl-button--small zl-button--primary">Small</button>
+    <button class="zl-button zl-button--medium zl-button--primary">Medium</button>
+    <button class="zl-button zl-button--large zl-button--primary">Large</button>
+  </div>
+
+  <div class="showcase-row">
+    <span class="showcase-label">Block</span>
+    <button class="zl-button zl-button--medium zl-button--primary zl-button--block">Block Button</button>
+  </div>
+
+  <div class="showcase-row">
+    <span class="showcase-label">State</span>
+    <button class="zl-button zl-button--medium zl-button--primary zl-button--loading"><span class="zl-button__loading"></span></button>
+    <button class="zl-button zl-button--medium zl-button--primary zl-button--disabled" disabled>Disabled</button>
+  </div>
+</div>
+
+<!-- ZlInput -->
+<div class="section">
+  <div class="section-title">ZlInput <span class="tag">7 Props</span></div>
+  <p class="section-desc">通用输入框组件，支持多种类型、错误状态、前缀/后缀图标</p>
+
+  <div class="showcase-row">
+    <span class="showcase-label">Normal</span>
+    <div class="zl-input-wrapper">
+      <input class="zl-input" type="text" placeholder="请输入内容" value="">
+    </div>
+  </div>
+
+  <div class="showcase-row">
+    <span class="showcase-label">With Value</span>
+    <div class="zl-input-wrapper">
+      <input class="zl-input" type="text" placeholder="请输入内容" value="字灵 ZiLing">
+    </div>
+  </div>
+
+  <div class="showcase-row">
+    <span class="showcase-label">Error</span>
+    <div class="zl-input-wrapper has-error">
+      <input class="zl-input" type="text" placeholder="请输入内容" value="错误内容">
+    </div>
+  </div>
+
+  <div class="showcase-row">
+    <span class="showcase-label">Disabled</span>
+    <div class="zl-input-wrapper is-disabled">
+      <input class="zl-input" type="text" placeholder="已禁用" disabled>
+    </div>
+  </div>
+
+  <div class="showcase-row">
+    <span class="showcase-label">Password</span>
+    <div class="zl-input-wrapper">
+      <input class="zl-input" type="password" placeholder="输入密码" value="password123">
+    </div>
+  </div>
+</div>
+
+<!-- ZlCard -->
+<div class="section">
+  <div class="section-title">ZlCard <span class="tag">6 Props · 3 Slots</span></div>
+  <p class="section-desc">通用卡片容器，支持多种类型、阴影、圆角和交互状态</p>
+
+  <div class="showcase-row" style="align-items:flex-start;">
+    <span class="showcase-label">Type</span>
+    <div class="zl-card zl-card--default zl-card--shadow-md">
+      <div class="card-title">Default Card</div>
+      <div class="card-text">带边框的默认卡片样式，适用于常规内容展示。</div>
+    </div>
+    <div class="zl-card zl-card--outline zl-card--shadow-md">
+      <div class="card-title">Outline Card</div>
+      <div class="card-text">透明背景描边卡片，适用于轻量级内容。</div>
+    </div>
+    <div class="zl-card zl-card--flat zl-card--shadow-md">
+      <div class="card-title">Flat Card</div>
+      <div class="card-text">纯色背景无描边卡片，适用于次级内容。</div>
+    </div>
+  </div>
+
+  <div class="showcase-row" style="align-items:flex-start;">
+    <span class="showcase-label">Shadow</span>
+    <div class="zl-card zl-card--default zl-card--shadow-sm">
+      <div class="card-title">SM</div>
+      <div class="card-text">小阴影</div>
+    </div>
+    <div class="zl-card zl-card--default zl-card--shadow-md">
+      <div class="card-title">MD</div>
+      <div class="card-text">中阴影</div>
+    </div>
+    <div class="zl-card zl-card--default zl-card--shadow-lg">
+      <div class="card-title">LG</div>
+      <div class="card-text">大阴影</div>
+    </div>
+    <div class="zl-card zl-card--default zl-card--shadow-xl">
+      <div class="card-title">XL</div>
+      <div class="card-text">超大阴影</div>
+    </div>
+  </div>
+
+  <div class="showcase-row" style="align-items:flex-start;">
+    <span class="showcase-label">Interactive</span>
+    <div class="zl-card zl-card--default zl-card--shadow-md zl-card--hoverable">
+      <div class="card-title">Hoverable</div>
+      <div class="card-text">悬停时上浮效果</div>
+    </div>
+    <div class="zl-card zl-card--default zl-card--shadow-md zl-card--clickable">
+      <div class="card-title">Clickable</div>
+      <div class="card-text">点击时缩放效果</div>
+    </div>
+  </div>
+</div>
+
+<!-- ZlModal -->
+<div class="section">
+  <div class="section-title">ZlModal <span class="tag">5 Props · 3 Slots</span></div>
+  <p class="section-desc">通用弹窗组件，支持居中/底部两种类型，自动处理 body 滚动</p>
+
+  <div class="showcase-row" style="align-items:flex-start;">
+    <span class="showcase-label">Center</span>
+    <div class="modal-preview">
+      <div class="modal-header">
+        <span class="modal-title">确认删除</span>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">确定要删除这个任务吗？此操作不可撤销。</div>
+      <div class="modal-footer">
+        <button class="zl-button zl-button--medium zl-button--secondary">取消</button>
+        <button class="zl-button zl-button--medium zl-button--primary">确认</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="showcase-row" style="align-items:flex-end;">
+    <span class="showcase-label">Bottom</span>
+    <div class="modal-preview modal-preview--bottom">
+      <div class="modal-header">
+        <span class="modal-title">选择日期</span>
+        <button class="modal-close">&times;</button>
+      </div>
+      <div class="modal-body">底部弹窗内容区域，常用于选择器、操作菜单等场景。</div>
+      <div class="modal-footer">
+        <button class="zl-button zl-button--medium zl-button--primary zl-button--block">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ZlToast -->
+<div class="section">
+  <div class="section-title">ZlToast <span class="tag">5 Props</span></div>
+  <p class="section-desc">轻提示组件，支持 4 种类型和 3 种位置，自动关闭</p>
+
+  <div class="showcase-row">
+    <span class="showcase-label">Type</span>
+    <div class="toast-row">
+      <div class="zl-toast zl-toast--info">
+        <span class="toast-icon">&#9432;</span>
+        <span>信息提示</span>
+      </div>
+      <div class="zl-toast zl-toast--success">
+        <span class="toast-icon">&#10003;</span>
+        <span>操作成功</span>
+      </div>
+      <div class="zl-toast zl-toast--warning">
+        <span class="toast-icon">&#9888;</span>
+        <span>警告提示</span>
+      </div>
+      <div class="zl-toast zl-toast--error">
+        <span class="toast-icon">&#10007;</span>
+        <span>发生错误</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ZlTabbar -->
+<div class="section">
+  <div class="section-title">ZlTabbar <span class="tag">1 Prop</span></div>
+  <p class="section-desc">底部导航栏组件，5 个 Tab 项，支持路由激活状态</p>
+
+  <div class="showcase-row">
+    <span class="showcase-label">Preview</span>
+    <div class="tabbar-preview">
+      <div class="tab-item active">
+        <div class="tab-icon" style="color:var(--zl-brand);">&#8962;</div>
+        <span class="tab-label" style="color:var(--zl-brand);">首页</span>
+      </div>
+      <div class="tab-item">
+        <div class="tab-icon">&#9993;</div>
+        <span class="tab-label">互动</span>
+      </div>
+      <div class="tab-item special">
+        <div class="special-btn">+</div>
+      </div>
+      <div class="tab-item">
+        <div class="tab-icon">&#128197;</div>
+        <span class="tab-label">日历</span>
+      </div>
+      <div class="tab-item">
+        <div class="tab-icon">&#128100;</div>
+        <span class="tab-label">个人</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ZlListItem -->
+<div class="section">
+  <div class="section-title">ZlListItem <span class="tag">8 Props · 5 Slots</span></div>
+  <p class="section-desc">通用列表项组件，支持图标、头像、标题、副标题、描述和箭头</p>
+
+  <div class="showcase-row" style="align-items:flex-start;">
+    <span class="showcase-label">Basic</span>
+    <div class="list-preview">
+      <div class="zl-list-item zl-list-item--clickable">
+        <div class="list-icon">&#9881;</div>
+        <div class="list-content">
+          <div class="list-title">设置</div>
+        </div>
+        <div class="list-arrow">&rsaquo;</div>
+      </div>
+      <div class="zl-list-item zl-list-item--clickable">
+        <div class="list-icon">&#128276;</div>
+        <div class="list-content">
+          <div class="list-title">通知</div>
+          <div class="list-subtitle">管理应用通知偏好</div>
+        </div>
+        <div class="list-arrow">&rsaquo;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="showcase-row" style="align-items:flex-start;">
+    <span class="showcase-label">With Avatar</span>
+    <div class="list-preview">
+      <div class="zl-list-item zl-list-item--clickable">
+        <div class="list-avatar">张</div>
+        <div class="list-content">
+          <div class="list-title">张三</div>
+          <div class="list-desc">前端开发工程师</div>
+        </div>
+        <div class="list-arrow">&rsaquo;</div>
+      </div>
+      <div class="zl-list-item zl-list-item--clickable">
+        <div class="list-avatar" style="background:#FDE68A;color:#B45309;">李</div>
+        <div class="list-content">
+          <div class="list-title">李四</div>
+          <div class="list-desc">产品经理</div>
+        </div>
+        <div class="list-arrow">&rsaquo;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="showcase-row" style="align-items:flex-start;">
+    <span class="showcase-label">Size</span>
+    <div class="list-preview">
+      <div class="zl-list-item zl-list-item--small zl-list-item--clickable">
+        <div class="list-content"><div class="list-title">Small Size</div></div>
+        <div class="list-arrow">&rsaquo;</div>
+      </div>
+      <div class="zl-list-item zl-list-item--clickable">
+        <div class="list-content"><div class="list-title">Medium Size (Default)</div></div>
+        <div class="list-arrow">&rsaquo;</div>
+      </div>
+      <div class="zl-list-item zl-list-item--large zl-list-item--clickable">
+        <div class="list-content"><div class="list-title">Large Size</div></div>
+        <div class="list-arrow">&rsaquo;</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="showcase-row" style="align-items:flex-start;">
+    <span class="showcase-label">Disabled</span>
+    <div class="list-preview">
+      <div class="zl-list-item zl-list-item--disabled">
+        <div class="list-icon">&#128274;</div>
+        <div class="list-content">
+          <div class="list-title">高级功能</div>
+          <div class="list-subtitle">需要升级后解锁</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer-note">
+  字灵 ZiLing Design System &middot; 基于 Vue 3 + 8pt Grid System &middot; 阿里巴巴普惠体 3.0
+</div>
+
+</body>
+</html>

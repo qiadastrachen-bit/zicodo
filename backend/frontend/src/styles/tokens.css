@@ -1,0 +1,206 @@
+/**
+ * zicodo Design Tokens
+ * 基于 8pt Grid System
+ * 日期：2026-06-08
+ * 来源：design-system-spec.md
+ *
+ * 规则：
+ * 1. 所有尺寸使用 rem（1rem = 16px）
+ * 2. 禁止在组件中硬编码 px 值
+ * 3. 所有 token 以 --zl- 前缀
+ */
+
+/* ===================================================================
+   0. 字体引入（阿里巴巴普惠体 3.0）
+   =================================================================== */
+
+@font-face {
+  font-family: 'Alibaba PuHui Ti';
+  src: url('/fonts/AlibabaPuHuiTi-3-55-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Alibaba PuHui Ti';
+  src: url('/fonts/AlibabaPuHuiTi-3-65-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Alibaba PuHui Ti';
+  src: url('/fonts/AlibabaPuHuiTi-3-85-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* ===================================================================
+     1. 颜色系统
+     =================================================================== */
+
+  /* 品牌色（不可更改） */
+  --zl-brand: #87C8B4;
+  --zl-brand-light: #A8DED0;
+  --zl-brand-dark: #6BB5A0;
+  --zl-brand-tint: rgba(135, 200, 180, 0.1);  /* 品牌色 10%，用于标签/高亮 */
+
+  /* 文本色 */
+  --zl-text-primary: #000000;
+  --zl-text-secondary: #666666;
+  --zl-text-hint: #999999;
+  --zl-text-disabled: #CED4DA;
+  --zl-text-inverse: #FFFFFF;  /* 深色背景上的白字 */
+
+  /* 背景色 */
+  --zl-bg: #FFFAF1;
+  --zl-bg-warm: #FFFAF1;
+  --zl-bg-cool: #F5F5F5;
+  --zl-surface: #FFFFFF;
+  --zl-overlay: rgba(0, 0, 0, 0.5);  /* 弹窗遮罩 */
+
+  /* 边框色 */
+  --zl-border: #E5E5E5;
+
+  /* 语义色 */
+  --zl-success: #10B981;
+  --zl-warning: #F59E0B;
+  --zl-error: #EF4444;
+  --zl-danger: #EF4444;       /* 兼容旧代码 */
+  --zl-info: #3B82F6;
+
+
+  /* ===================================================================
+     2. 字体系统（7级层次）
+     =================================================================== */
+
+  --zl-font-xs: 0.75rem;      /* 12px */
+  --zl-font-sm: 0.875rem;     /* 14px */
+  --zl-font-base: 1rem;       /* 16px */
+  --zl-font-lg: 1.25rem;      /* 20px */
+  --zl-font-xl: 1.5rem;       /* 24px */
+  --zl-font-2xl: 1.875rem;    /* 30px */
+  --zl-font-3xl: 2.25rem;     /* 36px */
+
+  /* 兼容旧字体 token */
+  --zl-font-md: 1.125rem;     /* 18px - 兼容旧代码 */
+  --zl-font-xxl: 2rem;        /* 32px - 兼容旧代码 */
+  --zl-font-display: 3rem;    /* 48px - 兼容旧代码 */
+
+  /* 字重 */
+  --zl-weight-regular: 400;
+  --zl-weight-medium: 500;
+  --zl-weight-semibold: 600;
+  --zl-weight-bold: 700;
+
+  /* 行高 */
+  --zl-line-tight: 1.25;
+  --zl-line-normal: 1.5;
+  --zl-line-relaxed: 1.75;
+
+  /* 字体族 */
+  --zl-font-family: 'Alibaba PuHui Ti', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --zl-font-family-en: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+
+
+  /* ===================================================================
+     3. 间距系统（8pt Grid）
+     =================================================================== */
+
+  --zl-space-0: 0;
+  --zl-space-1: 0.25rem;      /* 4px */
+  --zl-space-2: 0.5rem;       /* 8px */
+  --zl-space-3: 0.75rem;      /* 12px */
+  --zl-space-4: 1rem;         /* 16px */
+  --zl-space-5: 1.25rem;      /* 20px */
+  --zl-space-6: 1.5rem;       /* 24px */
+  --zl-space-8: 2rem;         /* 32px */
+  --zl-space-10: 2.5rem;      /* 40px */
+  --zl-space-12: 3rem;        /* 48px */
+  --zl-space-16: 4rem;        /* 64px */
+
+  /* 兼容旧间距 token */
+  --zl-space-xs: 0.25rem;     /* 4px */
+  --zl-space-sm: 0.5rem;      /* 8px */
+  --zl-space-md: 1rem;        /* 16px */
+  --zl-space-lg: 1.5rem;      /* 24px */
+  --zl-space-xl: 2rem;        /* 32px */
+  --zl-space-xxl: 3rem;       /* 48px */
+
+
+  /* ===================================================================
+     4. 圆角系统
+     =================================================================== */
+
+  --zl-radius-none: 0;
+  --zl-radius-sm: 0.5rem;     /* 8px */
+  --zl-radius-md: 0.75rem;    /* 12px */
+  --zl-radius-lg: 1.25rem;    /* 20px */
+  --zl-radius-xl: 1.75rem;    /* 28px */
+  --zl-radius-full: 50%;
+
+
+  /* ===================================================================
+     5. 阴影系统
+     =================================================================== */
+
+  --zl-shadow-none: none;
+  --zl-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --zl-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --zl-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+  --zl-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.20);
+
+
+  /* ===================================================================
+     6. 组件尺寸
+     =================================================================== */
+
+  /* 按钮 */
+  --zl-btn-height-sm: 32px;
+  --zl-btn-height-base: 40px;
+  --zl-btn-height-lg: 48px;
+  --zl-btn-height-icon: 44px;
+
+  /* 输入框 */
+  --zl-input-height-sm: 32px;
+  --zl-input-height-base: 40px;
+  --zl-input-height-lg: 48px;
+
+  /* TabBar */
+  --zl-tabbar-height: 56px;
+  --zl-tabbar-icon-size: 24px;
+
+  /* 打卡计时器 */
+  --zl-timer-size: 180px;
+
+  /* 布局 */
+  --zl-header-height: 56px;
+  --zl-input-area-height: 56px;
+  --zl-content-padding: 120px; /* TabBar + Input + 缓冲 */
+
+
+  /* ===================================================================
+     7. 动画曲线
+     =================================================================== */
+
+  --zl-transition-fast: 150ms ease;
+  --zl-transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --zl-transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* 兼容旧动画 token */
+  --zl-transition-base: 250ms ease;
+
+
+  /* ===================================================================
+     8. 响应式断点
+     =================================================================== */
+
+  --zl-breakpoint-sm: 640px;
+  --zl-breakpoint-md: 768px;
+  --zl-breakpoint-lg: 1024px;
+  --zl-breakpoint-xl: 1280px;
+}

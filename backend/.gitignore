@@ -1,0 +1,28 @@
+node_modules/
+data/
+*.db
+.env
+dist/
+coverage/
+nul
+*.log
+ppt-素材/
+# 文档/脚本（不需要上GitHub）
+答辩逐字稿.*
+演示视频脚本.md
+小组进度文档.md
+前后端对接说明.md
+字灵项目后端全流程架构与Q&A汇总.md
+文件结构说明.md
+演示规则解读.md
+API文档.md
+openapi.json
+generate_*
+seed_demo.js
+# WorkBuddy内部文件
+.workbuddy/
+
+# 部署用临时文件
+ziling-backend/
+ziling-backend.zip
+云服务器部署全流程详细记录.md

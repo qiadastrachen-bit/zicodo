@@ -1,0 +1,316 @@
+:root {
+  --ziling-splash-bg: #FFFAF1;
+  --ziling-splash-logo: #87C8B4;
+  --ziling-splash-ink: #20342f;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--ziling-splash-bg);
+}
+
+.ziling-splash {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--ziling-splash-bg);
+  color: var(--ziling-splash-ink);
+  font-family: Inter, "SF Pro Display", "Microsoft YaHei", system-ui, sans-serif;
+  touch-action: none;
+}
+
+.ziling-splash *,
+.ziling-splash *::before,
+.ziling-splash *::after {
+  box-sizing: border-box;
+}
+
+.ziling-splash::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    linear-gradient(90deg, transparent 0 18%, rgba(135, 200, 180, 0.055) 18.2% 18.55%, transparent 18.8%),
+    linear-gradient(90deg, transparent 0 76%, rgba(135, 200, 180, 0.045) 76.2% 76.55%, transparent 76.8%),
+    linear-gradient(0deg, transparent 0 28%, rgba(135, 200, 180, 0.045) 28.2% 28.55%, transparent 28.8%),
+    linear-gradient(0deg, transparent 0 70%, rgba(135, 200, 180, 0.038) 70.2% 70.55%, transparent 70.8%);
+  opacity: 0.78;
+}
+
+.ziling-splash__field {
+  position: absolute;
+  z-index: 1;
+  inset: 18%;
+  border-radius: 50%;
+  border: 1px solid rgba(135, 200, 180, 0.18);
+  box-shadow:
+    0 0 70px rgba(135, 200, 180, 0.13),
+    inset 0 0 70px rgba(135, 200, 180, 0.09);
+  opacity: 0;
+  transform: scale(0.72);
+  animation: zilingFieldBreathe 5450ms ease-in-out forwards;
+}
+
+.ziling-splash__motion {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+.ziling-splash .trace,
+.ziling-splash .injection {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+}
+
+.ziling-splash .trace {
+  stroke: rgba(135, 200, 180, 0.88);
+  stroke-width: 2.15;
+}
+
+.ziling-splash .trace.back {
+  stroke-width: 1.15;
+  stroke: rgba(32, 52, 47, 0.13);
+}
+
+.ziling-splash .trace.branch {
+  stroke-width: 1.35;
+  stroke: rgba(135, 200, 180, 0.62);
+  stroke-dasharray: 3 9;
+}
+
+.ziling-splash .injection {
+  stroke: rgba(135, 200, 180, 0.96);
+  stroke-width: 2.4;
+}
+
+.ziling-splash__holo {
+  position: absolute;
+  z-index: 4;
+  padding: 0;
+  color: rgba(32, 52, 47, 0.78);
+  font: 12px/1 ui-monospace, Consolas, monospace;
+  text-shadow:
+    0 0 8px rgba(135, 200, 180, 0.42),
+    0 0 1px rgba(135, 200, 180, 0.55);
+  opacity: 0;
+  transform: translate3d(0, 0, 0);
+  pointer-events: none;
+}
+
+.ziling-splash__holo::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(135, 200, 180, 0.58);
+  transform: translateY(-50%) scale(0);
+}
+
+.ziling-splash__holo::after {
+  content: attr(data-micro);
+  position: absolute;
+  left: 54px;
+  top: 19px;
+  color: rgba(135, 200, 180, 0.54);
+  font-size: 10px;
+  opacity: 0;
+}
+
+.ziling-splash__holo.is-active {
+  animation:
+    zilingHoloIn 620ms cubic-bezier(.2, .78, .2, 1) forwards,
+    zilingHoloPulse 920ms steps(2, end) 620ms infinite;
+}
+
+.ziling-splash__holo.is-active::before {
+  animation: zilingHoloSeed 620ms cubic-bezier(.2, .78, .2, 1) forwards;
+}
+
+.ziling-splash__holo.is-active::after {
+  animation: zilingMicroSpawn 760ms steps(2, end) infinite;
+}
+
+.ziling-splash__holo.is-out {
+  animation: zilingHoloOut 820ms ease forwards;
+}
+
+.ziling-splash__holo span {
+  position: absolute;
+  display: block;
+  white-space: nowrap;
+}
+
+.ziling-splash__holo .main {
+  left: 0;
+  top: 0;
+}
+
+.ziling-splash__holo .alt {
+  left: 24px;
+  top: 14px;
+  opacity: 0.46;
+}
+
+.ziling-splash__holo .echo {
+  color: rgba(135, 200, 180, 0.62);
+  font-size: 11px;
+  opacity: 0;
+}
+
+.ziling-splash__holo .e1 { left: 48px; top: -8px; }
+.ziling-splash__holo .e2 { left: 72px; top: 9px; }
+.ziling-splash__holo .e3 { left: 94px; top: -5px; }
+
+.ziling-splash__holo.is-active .e1 {
+  animation: zilingEchoA 680ms steps(3, end) 180ms infinite;
+}
+
+.ziling-splash__holo.is-active .e2 {
+  animation: zilingEchoB 820ms steps(4, end) 260ms infinite;
+}
+
+.ziling-splash__holo.is-active .e3 {
+  animation: zilingEchoC 940ms steps(4, end) 360ms infinite;
+}
+
+.ziling-splash__holo.h1 { left: 23%; top: 23%; }
+.ziling-splash__holo.h2 { right: 24%; top: 22%; }
+.ziling-splash__holo.h3 { left: 24%; bottom: 28%; }
+.ziling-splash__holo.h4 { right: 25%; bottom: 29%; }
+
+.ziling-splash__logo {
+  position: absolute;
+  z-index: 7;
+  left: 50%;
+  top: 52%;
+  width: clamp(150px, 32vmin, 238px);
+  height: clamp(150px, 32vmin, 238px);
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(0.96);
+  filter: none;
+}
+
+.ziling-splash .logo-shell {
+  fill: transparent;
+  stroke: transparent;
+  stroke-width: 5;
+  opacity: 0;
+}
+
+.ziling-splash .logo-fill {
+  fill: var(--ziling-splash-logo);
+  opacity: 0;
+  clip-path: url(#ziling-logo-clip);
+}
+
+.ziling-splash .logo-complete {
+  fill: var(--ziling-splash-logo);
+  opacity: 0;
+}
+
+.ziling-splash .logo-blink-eye {
+  fill: var(--ziling-splash-logo);
+  opacity: 0;
+  will-change: opacity;
+}
+
+.ziling-splash .normal-right-eye {
+  will-change: opacity;
+}
+
+.ziling-splash.is-finished {
+  pointer-events: none;
+}
+
+@keyframes zilingFieldBreathe {
+  0% { opacity: 0; transform: scale(0.72); }
+  24% { opacity: 0.9; transform: scale(1); }
+  70% { opacity: 0.56; transform: scale(1.04); }
+  100% { opacity: 0; transform: scale(1.08); }
+}
+
+@keyframes zilingHoloIn {
+  0% { opacity: 0; transform: translate3d(0, 4px, 0); filter: blur(3px); }
+  45% { opacity: 0.9; transform: translate3d(0, 0, 0); filter: blur(0); }
+  100% { opacity: 0.78; transform: translate3d(0, 0, 0); filter: blur(0); }
+}
+
+@keyframes zilingHoloSeed {
+  0% { transform: translateY(-50%) scale(0); opacity: 0; }
+  100% { transform: translateY(-50%) scale(1); opacity: 1; }
+}
+
+@keyframes zilingHoloPulse {
+  0%, 100% { opacity: 0.82; }
+  50% { opacity: 0.98; }
+}
+
+@keyframes zilingHoloOut {
+  0% { opacity: 0.72; transform: translate3d(0, 0, 0); filter: blur(0); }
+  100% { opacity: 0; transform: translate3d(0, -4px, 0); filter: blur(2px); }
+}
+
+@keyframes zilingMicroSpawn {
+  0%, 100% { opacity: 0; transform: translate3d(0, 0, 0); }
+  35% { opacity: 0.74; transform: translate3d(12px, -8px, 0); }
+  62% { opacity: 0.38; transform: translate3d(24px, -2px, 0); }
+}
+
+@keyframes zilingEchoA {
+  0%, 100% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.92); }
+  34% { opacity: 0.68; transform: translate3d(-8px, 10px, 0) scale(0.86); }
+  68% { opacity: 0.2; transform: translate3d(-12px, 14px, 0) scale(0.8); }
+}
+
+@keyframes zilingEchoB {
+  0%, 100% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.9); }
+  42% { opacity: 0.52; transform: translate3d(12px, -10px, 0) scale(0.82); }
+  76% { opacity: 0.18; transform: translate3d(16px, -14px, 0) scale(0.76); }
+}
+
+@keyframes zilingEchoC {
+  0%, 100% { opacity: 0; transform: translate3d(0, 0, 0) scale(0.86); }
+  48% { opacity: 0.44; transform: translate3d(10px, 12px, 0) scale(0.78); }
+  80% { opacity: 0.16; transform: translate3d(16px, 18px, 0) scale(0.72); }
+}
+
+@media (max-width: 420px) {
+  .ziling-splash__logo {
+    width: clamp(136px, 38vmin, 180px);
+    height: clamp(136px, 38vmin, 180px);
+  }
+
+  .ziling-splash__holo {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ziling-splash__field,
+  .ziling-splash__holo,
+  .ziling-splash .trace,
+  .ziling-splash .injection,
+  .ziling-splash .logo-fill,
+  .ziling-splash .logo-blink-eye {
+    animation: none !important;
+    opacity: 0 !important;
+  }
+
+  .ziling-splash .logo-complete {
+    opacity: 1 !important;
+  }
+}
