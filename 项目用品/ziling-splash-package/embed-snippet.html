@@ -1,0 +1,14 @@
+<!-- 1. 引入样式 -->
+<link rel="stylesheet" href="/path/to/ziling-splash.css">
+
+<!-- 2. 放在 app 开屏容器里。容器会自适应父级宽高。 -->
+<div id="zilingSplash" data-ziling-splash></div>
+
+<!-- 3. 引入脚本。默认播放一次，播放结束会触发 zilingSplashFinished 事件。 -->
+<script src="/path/to/ziling-splash.js"></script>
+<script>
+  document.getElementById("zilingSplash").addEventListener("zilingSplashFinished", function () {
+    // 在这里切换到 app 首页，或移除开屏层。
+    // this.remove();
+  });
+</script>

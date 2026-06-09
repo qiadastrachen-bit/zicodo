@@ -1,0 +1,204 @@
+<style>
+  .ziling-board {
+    --cream: #fffaf1;
+    --mint: #87c8b4;
+    --ink: #22342f;
+    --line: rgba(135, 200, 180, 0.46);
+    background: var(--cream);
+    color: var(--ink);
+    border-radius: 18px;
+    padding: 28px;
+  }
+  .ziling-board h2 {
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-size: 28px;
+    letter-spacing: 0;
+  }
+  .ziling-board .subtitle {
+    color: rgba(34, 52, 47, 0.68);
+    margin-bottom: 24px;
+  }
+  .ziling-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .ziling-option {
+    position: relative;
+    min-height: 420px;
+    overflow: hidden;
+    border: 1px solid rgba(34, 52, 47, 0.1);
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 50% 52%, rgba(135, 200, 180, 0.22), transparent 27%),
+      linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,250,241,0.82));
+    cursor: pointer;
+    box-shadow: 0 18px 50px rgba(34, 52, 47, 0.08);
+  }
+  .ziling-option::before {
+    content: "";
+    position: absolute;
+    inset: 12%;
+    border: 1.5px solid var(--line);
+    border-radius: 50%;
+    opacity: var(--ring-opacity, 0.7);
+    transform: rotate(var(--ring-rotate, 0deg)) scale(var(--ring-scale, 1));
+  }
+  .ziling-option::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, transparent 0 48%, rgba(135,200,180,0.13) 49% 51%, transparent 52%),
+      linear-gradient(0deg, transparent 0 46%, rgba(135,200,180,0.11) 47% 49%, transparent 50%);
+    opacity: var(--grid-opacity, 0.3);
+  }
+  .spark, .stream, .logo-mark, .hud-line, .molten {
+    position: absolute;
+    z-index: 1;
+  }
+  .logo-mark {
+    left: 50%;
+    top: 53%;
+    width: 98px;
+    height: 86px;
+    transform: translate(-50%, -50%);
+    color: var(--mint);
+    filter: drop-shadow(0 12px 22px rgba(135,200,180,0.24));
+  }
+  .eye {
+    position: absolute;
+    top: 4px;
+    width: 38px;
+    height: 66px;
+    border-radius: 9px;
+    background: currentColor;
+    transform: skew(-30deg);
+  }
+  .eye.left { left: 7px; }
+  .eye.right { right: 7px; transform: skew(30deg) scaleY(var(--blink, 1)); transform-origin: center bottom; }
+  .mouth {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 54px;
+    height: 54px;
+    border: 16px solid currentColor;
+    border-radius: 50%;
+    transform: translateX(-50%);
+  }
+  .stream {
+    color: rgba(34, 52, 47, var(--stream-alpha, 0.38));
+    font: 12px/1.15 ui-monospace, "SFMono-Regular", Consolas, monospace;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    filter: blur(var(--stream-blur, 0px));
+  }
+  .hud-line {
+    height: 1.5px;
+    background: rgba(135, 200, 180, var(--hud-alpha, 0.55));
+    transform-origin: center;
+  }
+  .spark {
+    color: rgba(34, 52, 47, var(--spark-alpha, 0.56));
+    font: 22px/1 ui-monospace, Consolas, monospace;
+  }
+  .molten {
+    left: 50%;
+    top: 54%;
+    width: var(--m-size, 128px);
+    height: var(--m-size, 128px);
+    border-radius: 42% 58% 48% 52%;
+    background: rgba(135, 200, 180, var(--molten-alpha, 0.16));
+    filter: blur(var(--m-blur, 10px));
+    transform: translate(-50%, -50%) rotate(var(--m-rotate, 0deg));
+  }
+  .ziling-caption {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+    z-index: 2;
+    padding-top: 14px;
+    border-top: 1px solid rgba(34, 52, 47, 0.1);
+  }
+  .ziling-caption h3 {
+    margin: 0 0 6px;
+    color: var(--ink);
+    font-size: 18px;
+  }
+  .ziling-caption p {
+    margin: 0;
+    color: rgba(34, 52, 47, 0.62);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .soft { --ring-opacity: 0.42; --grid-opacity: 0.12; --stream-alpha: 0.2; --hud-alpha: 0.28; --spark-alpha: 0.22; --molten-alpha: 0.12; }
+  .balanced { --ring-opacity: 0.7; --grid-opacity: 0.24; --stream-alpha: 0.36; --hud-alpha: 0.5; --spark-alpha: 0.46; --molten-alpha: 0.18; }
+  .dense { --ring-opacity: 0.95; --grid-opacity: 0.36; --stream-alpha: 0.54; --hud-alpha: 0.72; --spark-alpha: 0.68; --molten-alpha: 0.2; }
+  @media (max-width: 900px) {
+    .ziling-cards { grid-template-columns: 1fr; }
+    .ziling-option { min-height: 320px; }
+  }
+</style>
+
+<div class="ziling-board">
+  <h2>开屏动画质感强度</h2>
+  <p class="subtitle">背景锁定 #FFFAF1，logo 锁定 #87C8B4。这里先选“参考动画元素”的密度：线阵、颜文字数据流、中心熔铸光效要做到多强。</p>
+
+  <div class="ziling-cards">
+    <div class="ziling-option soft" data-choice="soft" onclick="toggleSelect(this)">
+      <div class="stream" style="left: 22%; top: 12%;">^_^  T_T  -_-</div>
+      <div class="stream" style="right: 20%; top: 18%;">(^_^)/  >_<</div>
+      <div class="hud-line" style="left: 19%; top: 45%; width: 34%; transform: rotate(-22deg);"></div>
+      <div class="hud-line" style="right: 18%; top: 40%; width: 28%; transform: rotate(18deg);"></div>
+      <div class="spark" style="left: 22%; top: 24%;">＊</div>
+      <div class="molten"></div>
+      <div class="logo-mark"><span class="eye left"></span><span class="eye right"></span><span class="mouth"></span></div>
+      <div class="ziling-caption">
+        <h3>A 柔和高级</h3>
+        <p>留白最多，像轻量启动仪式。优点是干净，缺点是“技能获取”的冲击略弱。</p>
+      </div>
+    </div>
+
+    <div class="ziling-option balanced" data-choice="balanced" onclick="toggleSelect(this)">
+      <div class="stream" style="left: 16%; top: 9%;">^o^  =_=  Q_Q</div>
+      <div class="stream" style="left: 49%; top: 4%;">(^_^)/  U_U</div>
+      <div class="stream" style="right: 15%; top: 14%;">>_<  T_T  ^.^</div>
+      <div class="hud-line" style="left: 11%; top: 36%; width: 42%; transform: rotate(-18deg);"></div>
+      <div class="hud-line" style="right: 10%; top: 37%; width: 43%; transform: rotate(18deg);"></div>
+      <div class="hud-line" style="left: 27%; top: 69%; width: 46%; transform: rotate(0deg);"></div>
+      <div class="spark" style="left: 19%; top: 21%;">✶</div>
+      <div class="spark" style="right: 20%; top: 24%;">＊</div>
+      <div class="spark" style="right: 26%; bottom: 30%;">✦</div>
+      <div class="molten"></div>
+      <div class="logo-mark"><span class="eye left"></span><span class="eye right" style="--blink:.62"></span><span class="mouth"></span></div>
+      <div class="ziling-caption">
+        <h3>B 克制科技感</h3>
+        <p>最接近你描述的方向：有法阵和数据流，但中心 logo 仍然清晰、轻盈。</p>
+      </div>
+    </div>
+
+    <div class="ziling-option dense" data-choice="dense" onclick="toggleSelect(this)">
+      <div class="stream" style="left: 9%; top: 5%;">^_^  T_T  >_<  Q_Q</div>
+      <div class="stream" style="left: 32%; top: 2%;">(^_^)/  -_-  U_U</div>
+      <div class="stream" style="right: 31%; top: 3%;">^o^  =_=  ^.^</div>
+      <div class="stream" style="right: 8%; top: 8%;">>_<  Q_Q  T_T</div>
+      <div class="hud-line" style="left: 5%; top: 31%; width: 48%; transform: rotate(-24deg);"></div>
+      <div class="hud-line" style="right: 6%; top: 32%; width: 50%; transform: rotate(24deg);"></div>
+      <div class="hud-line" style="left: 12%; top: 62%; width: 76%; transform: rotate(0deg);"></div>
+      <div class="hud-line" style="left: 18%; top: 75%; width: 64%; transform: rotate(-10deg);"></div>
+      <div class="spark" style="left: 15%; top: 18%;">✶</div>
+      <div class="spark" style="left: 74%; top: 18%;">＊</div>
+      <div class="spark" style="left: 18%; bottom: 34%;">✦</div>
+      <div class="spark" style="right: 16%; bottom: 35%;">✶</div>
+      <div class="molten" style="--m-size: 160px; --m-blur: 14px;"></div>
+      <div class="logo-mark"><span class="eye left"></span><span class="eye right" style="--blink:.32"></span><span class="mouth"></span></div>
+      <div class="ziling-caption">
+        <h3>C 强仪式感</h3>
+        <p>更像参考视频的技能法阵爆发。冲击强，但两秒开屏里需要谨慎避免显乱。</p>
+      </div>
+    </div>
+  </div>
+</div>

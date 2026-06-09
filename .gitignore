@@ -1,0 +1,84 @@
+# ============================================
+# .gitignore - zicodo 项目根目录
+# 排除所有不应该提交到 Git 的文件
+# ============================================
+
+# ─── 依赖目录 ─────────────────────────────
+node_modules/
+**/node_modules/
+bower_components/
+
+# ─── 构建产物 ─────────────────────────────
+dist/
+build/
+**/dist/
+**/build/
+
+# ─── 环境变量（敏感信息，绝不提交！） ───
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+**/.env
+!**/.env.example
+
+# ─── 数据库和数据文件 ───────────────────
+*.db
+*.sqlite
+*.sqlite3
+data/
+**/data/
+
+# ─── 日志文件 ────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── 测试和覆盖率 ───────────────────────
+coverage/
+.nyc_output/
+
+# ─── 编辑器和 IDE ───────────────────────
+.vscode/*
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+.idea/
+*.swp
+*.swo
+
+# ─── 操作系统 ───────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Docker 相关（可选：Dockerfile 保留，数据不保留）
+*.dockerignore
+.dockerignore
+# Docker 数据卷（实际容器数据不提交）
+
+# ─── 临时文件 ───────────────────────────
+*.tmp
+*.bak
+*.pid
+.cache/
+.temp/
+
+# ─── 项目专用（根据后端已有 .gitignore 扩展）
+ppt-素材/
+答辩逐字稿.*
+演示视频脚本.md
+小组进度文档.md
+前后端对接说明.md
+字灵项目后端全流程架构与Q&A汇总.md
+文件结构说明.md
+演示规则解读.md
+API文档.md
+openapi.json
+generate_*
+seed_demo.js
+ziling-backend/
+ziling-backend.zip
+云服务器部署全流程详细记录.md
+.workbuddy/

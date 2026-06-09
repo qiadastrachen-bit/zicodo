@@ -1,0 +1,347 @@
+<style>
+  .motion-board {
+    --cream: #fffaf1;
+    --mint: #87c8b4;
+    --ink: #20342f;
+    --line: rgba(135, 200, 180, 0.78);
+    background: var(--cream);
+    color: var(--ink);
+    border-radius: 18px;
+    padding: 26px;
+  }
+  .motion-board h2 {
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-size: 28px;
+    letter-spacing: 0;
+  }
+  .motion-board .subtitle {
+    color: rgba(32, 52, 47, 0.66);
+    margin: 0 0 22px;
+  }
+  .motion-layout {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.7fr) minmax(420px, 1.3fr);
+    gap: 22px;
+    align-items: stretch;
+  }
+  .timeline-card,
+  .preview-card {
+    border: 1px solid rgba(32, 52, 47, 0.1);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.48);
+    box-shadow: 0 18px 50px rgba(32, 52, 47, 0.08);
+  }
+  .timeline-card {
+    padding: 20px;
+  }
+  .timeline-title {
+    margin: 0 0 18px;
+    font-size: 16px;
+    color: rgba(32, 52, 47, 0.82);
+  }
+  .step {
+    position: relative;
+    padding: 0 0 18px 28px;
+    border-left: 1px solid rgba(135, 200, 180, 0.42);
+  }
+  .step:last-child {
+    border-left-color: transparent;
+    padding-bottom: 0;
+  }
+  .dot {
+    position: absolute;
+    left: -7px;
+    top: 0;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 2px solid var(--mint);
+    box-shadow: 0 0 18px rgba(135, 200, 180, 0.56);
+  }
+  .time {
+    font: 12px/1.2 ui-monospace, Consolas, monospace;
+    color: #5c9284;
+    margin-bottom: 4px;
+  }
+  .step h3 {
+    margin: 0 0 5px;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .step p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.45;
+    color: rgba(32, 52, 47, 0.62);
+  }
+  .preview-card {
+    position: relative;
+    min-height: 500px;
+    overflow: hidden;
+  }
+  .phone-frame {
+    position: absolute;
+    inset: 22px;
+    border-radius: 34px;
+    background:
+      radial-gradient(circle at 50% 50%, rgba(135, 200, 180, 0.16), transparent 26%),
+      linear-gradient(180deg, #fffdf8 0%, var(--cream) 100%);
+    border: 1px solid rgba(32, 52, 47, 0.12);
+    overflow: hidden;
+  }
+  .phone-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, transparent 0 24%, rgba(135, 200, 180, 0.06) 24.2% 24.5%, transparent 24.7%),
+      linear-gradient(90deg, transparent 0 72%, rgba(135, 200, 180, 0.05) 72.2% 72.5%, transparent 72.7%),
+      linear-gradient(0deg, transparent 0 28%, rgba(135, 200, 180, 0.05) 28.2% 28.5%, transparent 28.7%);
+    opacity: 0.75;
+  }
+  .motion-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .trace {
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    filter: drop-shadow(0 0 6px rgba(135, 200, 180, 0.62));
+    animation: drawTrace 2s cubic-bezier(.18,.82,.2,1) infinite;
+  }
+  .trace.alt {
+    stroke-width: 1.6;
+    stroke: rgba(32, 52, 47, 0.28);
+    animation-delay: 0.08s;
+  }
+  .node {
+    fill: #fffaf1;
+    stroke: rgba(135, 200, 180, 0.88);
+    stroke-width: 2;
+    opacity: 0;
+    animation: nodePop 2s ease infinite;
+  }
+  .node:nth-of-type(2n) { animation-delay: 0.12s; }
+  .holo {
+    position: absolute;
+    min-width: 74px;
+    padding: 6px 8px;
+    border-left: 1px solid rgba(135, 200, 180, 0.7);
+    color: rgba(32, 52, 47, 0.62);
+    font: 12px/1.2 ui-monospace, Consolas, monospace;
+    background: linear-gradient(90deg, rgba(135, 200, 180, 0.12), transparent);
+    text-shadow: 0 0 10px rgba(135, 200, 180, 0.45);
+    opacity: 0;
+    transform: translateY(6px);
+    animation: holoFlash 2s steps(1, end) infinite;
+  }
+  .holo::after {
+    content: attr(data-alt);
+    display: block;
+    opacity: 0.48;
+    margin-top: 3px;
+  }
+  .h1 { left: 11%; top: 26%; animation-delay: 0.34s; }
+  .h2 { right: 12%; top: 23%; animation-delay: 0.45s; }
+  .h3 { left: 18%; bottom: 25%; animation-delay: 0.56s; }
+  .h4 { right: 17%; bottom: 30%; animation-delay: 0.68s; }
+  .liquid {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 190px;
+    height: 190px;
+    border-radius: 45% 55% 52% 48%;
+    background:
+      radial-gradient(circle at 38% 32%, rgba(255, 255, 255, 0.5), transparent 28%),
+      rgba(135, 200, 180, 0.24);
+    filter: blur(14px);
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0;
+    animation: moltenFill 2s cubic-bezier(.2,.7,.2,1) infinite;
+  }
+  .logo {
+    position: absolute;
+    left: 50%;
+    top: 52%;
+    width: 150px;
+    height: 150px;
+    transform: translate(-50%, -50%) scale(0.92);
+    color: var(--mint);
+    filter: drop-shadow(0 16px 26px rgba(135, 200, 180, 0.3));
+    opacity: 0;
+    animation: logoReveal 2s cubic-bezier(.2,.82,.2,1) infinite;
+  }
+  .logo-eye {
+    position: absolute;
+    top: 31px;
+    width: 39px;
+    height: 74px;
+    border-radius: 8px;
+    background: currentColor;
+  }
+  .logo-eye.left {
+    left: 16px;
+    transform: skew(-30deg);
+  }
+  .logo-eye.right {
+    right: 16px;
+    transform: skew(30deg);
+    transform-origin: center bottom;
+    animation: blinkRight 2s ease infinite;
+  }
+  .logo-mouth {
+    position: absolute;
+    left: 50%;
+    bottom: 17px;
+    width: 58px;
+    height: 58px;
+    border: 17px solid currentColor;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+  }
+  .caption-strip {
+    position: absolute;
+    left: 42px;
+    right: 42px;
+    bottom: 36px;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    font: 12px/1.3 ui-monospace, Consolas, monospace;
+    color: rgba(32, 52, 47, 0.42);
+  }
+  .choice-note {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: rgba(135, 200, 180, 0.12);
+    color: rgba(32, 52, 47, 0.72);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  @keyframes drawTrace {
+    0% { stroke-dashoffset: 1000; opacity: 0; }
+    7% { opacity: 1; }
+    42% { stroke-dashoffset: 0; opacity: 1; }
+    65% { stroke-dashoffset: 0; opacity: 0.72; filter: drop-shadow(0 0 10px rgba(135, 200, 180, 0.82)); }
+    82%, 100% { stroke-dashoffset: -240; opacity: 0; }
+  }
+  @keyframes nodePop {
+    0%, 16% { opacity: 0; transform: scale(.7); }
+    23%, 55% { opacity: 1; transform: scale(1); }
+    73%, 100% { opacity: 0; transform: scale(.8); }
+  }
+  @keyframes holoFlash {
+    0%, 20% { opacity: 0; transform: translateY(8px); content: ""; }
+    24%, 30% { opacity: 0.85; transform: translateY(0); }
+    31%, 37% { opacity: 0.55; transform: translateY(0); }
+    38%, 48% { opacity: 0.78; transform: translateY(-2px); }
+    55%, 100% { opacity: 0; transform: translateY(-8px); }
+  }
+  @keyframes moltenFill {
+    0%, 48% { opacity: 0; transform: translate(-50%, -50%) scale(0.2) rotate(0deg); }
+    58% { opacity: 1; transform: translate(-50%, -50%) scale(0.92) rotate(16deg); }
+    72% { opacity: 0.82; transform: translate(-50%, -50%) scale(1.1) rotate(45deg); }
+    86%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.78) rotate(70deg); }
+  }
+  @keyframes logoReveal {
+    0%, 56% { opacity: 0; transform: translate(-50%, -50%) scale(0.76); }
+    68%, 86% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.04); }
+  }
+  @keyframes blinkRight {
+    0%, 77%, 87%, 100% { transform: skew(30deg) scaleY(1); }
+    82% { transform: skew(30deg) scaleY(0.18); }
+  }
+  @media (max-width: 900px) {
+    .motion-layout { grid-template-columns: 1fr; }
+    .preview-card { min-height: 520px; }
+  }
+</style>
+
+<div class="motion-board">
+  <h2>修正版：电路线生长，液化成 logo</h2>
+  <p class="subtitle">这是按你刚才描述重新做的动效草图：电路从四周进入，支路弹出颜文字全息说明，线条快速变换后像颜料一样汇入中心，形成 #87C8B4 的 logo，右眼眨一下后消失。</p>
+
+  <div class="motion-layout">
+    <div class="timeline-card">
+      <p class="timeline-title">2 秒开屏节奏</p>
+      <div class="step">
+        <span class="dot"></span>
+        <div class="time">0.00 - 0.45s</div>
+        <h3>电路从边缘延伸</h3>
+        <p>线条不是装饰圆阵，而是像 PCB 走线一样从四周寻找中心。</p>
+      </div>
+      <div class="step">
+        <span class="dot"></span>
+        <div class="time">0.45 - 1.10s</div>
+        <h3>颜文字支路浮现</h3>
+        <p>颜文字作为支路全息注释出现，快速换行、闪烁、透明度跳变。</p>
+      </div>
+      <div class="step">
+        <span class="dot"></span>
+        <div class="time">1.10 - 1.55s</div>
+        <h3>线条液化填充</h3>
+        <p>电路能量向中心聚合，变成柔软的颜料流，填出 logo 轮廓。</p>
+      </div>
+      <div class="step">
+        <span class="dot"></span>
+        <div class="time">1.55 - 2.00s</div>
+        <h3>眨眼，退场</h3>
+        <p>logo 稳定一瞬，右眼眨一下，整体淡出，进入 app 首页。</p>
+      </div>
+      <div class="choice-note">
+        我建议正式实现采用这一版作为主方向：电路线负责结构，颜文字负责灵魂，液化填充负责“高级感”和品牌出现。
+      </div>
+    </div>
+
+    <div class="preview-card" data-choice="circuit_molten" onclick="toggleSelect(this)">
+      <div class="phone-frame">
+        <svg class="motion-svg" viewBox="0 0 680 500" aria-hidden="true">
+          <path class="trace" d="M -20 95 H 82 V 132 H 176 V 185 H 265 C 292 185 306 205 326 232" />
+          <path class="trace" d="M 700 88 H 586 V 132 H 495 V 184 H 414 C 386 184 371 204 352 232" />
+          <path class="trace" d="M 72 520 V 398 H 148 V 344 H 238 V 290 H 296" />
+          <path class="trace" d="M 612 520 V 405 H 536 V 348 H 446 V 292 H 384" />
+          <path class="trace alt" d="M 340 -20 V 78 H 300 V 136 H 340 V 228" />
+          <path class="trace alt" d="M -20 254 H 92 V 224 H 166 V 254 H 286" />
+          <path class="trace alt" d="M 700 250 H 590 V 220 H 514 V 252 H 394" />
+          <circle class="node" cx="82" cy="95" r="5" />
+          <circle class="node" cx="176" cy="185" r="5" />
+          <circle class="node" cx="495" cy="184" r="5" />
+          <circle class="node" cx="536" cy="348" r="5" />
+          <circle class="node" cx="148" cy="344" r="5" />
+          <circle class="node" cx="340" cy="136" r="5" />
+        </svg>
+
+        <div class="holo h1" data-alt="Q_Q  -_-">^_^  ^o^</div>
+        <div class="holo h2" data-alt=">_<  =_=">(^_^)/</div>
+        <div class="holo h3" data-alt="T_T  U_U">^.^  Q_Q</div>
+        <div class="holo h4" data-alt="-_-  ^_^">>_<  ^o^</div>
+
+        <div class="liquid"></div>
+        <div class="logo">
+          <span class="logo-eye left"></span>
+          <span class="logo-eye right"></span>
+          <span class="logo-mouth"></span>
+        </div>
+        <div class="caption-strip">
+          <span>TRACE / EMOTE BRANCH</span>
+          <span>#87C8B4</span>
+          <span>2.00S</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

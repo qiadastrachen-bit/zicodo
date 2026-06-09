@@ -1,0 +1,128 @@
+# ============================================
+# zicodo 项目 Docker Compose 配置
+# 部署到腾讯云服务器：120.53.11.84
+#
+# 使用方法：
+#   1. 在项目根目录执行：docker compose up -d --build
+#   2. 查看状态：docker compose ps
+#   3. 查看日志：docker compose logs -f
+#   4. 停止服务：docker compose down
+# ============================================
+
+services:
+
+  # ============================================
+  # 服务 1：前端 (Vue 3 + Nginx)
+  # - 监听主机 80 端口
+  # - 将 /api 和 /ziling 请求反向代理到 backend:3000
+  # ============================================
+  frontend:
+    build:
+      # 前端 Dockerfile 位置：backend/frontend/
+      context: ./backend/frontend
+      dockerfile: Dockerfile
+    container_name: zicodo-frontend
+    restart: unless-stopped
+
+    # 端口映射：主机 80 → 容器 80
+    ports:
+      - "80:80"
+      # 如需 HTTPS，取消下行注释并配置 SSL 证书
+      # - "443:443"
+
+    # 依赖：后端服务先启动
+    depends_on:
+      - backend
+
+    # 使用自建网络，实现服务间的 DNS 解析
+    networks:
+      - zicodo-net
+
+    # 资源限制（可选，根据服务器配置调整）
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+    # 健康检查：验证 Nginx 和静态页面是否可访问
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # ============================================
+  # 服务 2：后端 API (Express + SQLite + Sequelize)
+  # - 只在内部网络暴露 3000 端口，不直接映射到主机
+  # - 通过 frontend 的 Nginx 反向代理访问
+  # ============================================
+  backend:
+    build:
+      # 后端 Dockerfile 位置：backend/
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: zicodo-backend
+    restart: unless-stopped
+
+    # 仅在内部网络暴露端口，不映射到主机（通过 Nginx 代理访问）
+    expose:
+      - "3000"
+
+    # 数据持久化：
+    #   1. 挂载 .env 配置文件（只读）
+    #   2. 挂载 SQLite 数据目录（持久化数据库文件）
+    volumes:
+      - ./backend/.env:/app/.env:ro
+      - zicodo-data:/app/data
+
+    # 环境变量（也会被 .env 中的值覆盖）
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - DB_PATH=/app/data/digital_life.db
+
+    # 使用自建网络
+    networks:
+      - zicodo-net
+
+    # 资源限制（后端需要更多资源，特别是 AI 对话时）
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1024M
+        reservations:
+          cpus: "0.5"
+          memory: 256M
+
+    # 健康检查：验证 /api/health 端点
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+
+# ============================================
+# 网络配置：自建桥接网络
+# ============================================
+networks:
+  zicodo-net:
+    driver: bridge
+    # 启用容器间的 DNS 解析（服务名即域名）
+    name: zicodo-network
+
+# ============================================
+# 数据卷配置：持久化 SQLite 数据库
+# ============================================
+volumes:
+  zicodo-data:
+    # 使用本地 driver，数据保存在 Docker 管理的目录
+    driver: local
+    name: zicodo-sqlite-data

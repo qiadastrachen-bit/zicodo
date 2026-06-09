@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1254" height="1254" viewBox="0 0 1254 1254" fill="none">
+  <title>^o^ Logo Vector</title>
+  <defs>
+    <path id="eye-left" d="
+      M 243 600
+      C 235 600 231 596 231 589
+      C 231 584 233 579 236 574
+      L 386 340
+      C 390 334 394 332 401 332
+      L 447 332
+      C 454 332 459 335 463 341
+      L 609 574
+      C 612 579 614 585 614 590
+      C 614 597 609 600 601 600
+      L 536 600
+      C 531 600 528 598 525 594
+      L 421 427
+      L 316 594
+      C 313 598 310 600 305 600
+      Z"/>
+    <path id="mouth-ring" d="
+      M 627 637.5
+      A 154.5 154.5 0 1 1 627 946.5
+      A 154.5 154.5 0 1 1 627 637.5
+      M 627 711.5
+      A 80.5 80.5 0 1 0 627 872.5
+      A 80.5 80.5 0 1 0 627 711.5
+      Z"/>
+  </defs>
+  <g fill="#87C8B4" fill-rule="evenodd" shape-rendering="geometricPrecision">
+    <use href="#eye-left"/>
+    <use href="#eye-left" transform="translate(1254 0) scale(-1 1)"/>
+    <use href="#mouth-ring"/>
+  </g>
+</svg>
