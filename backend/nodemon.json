@@ -1,0 +1,14 @@
+{
+  "watch": ["src"],
+  "ext": "js,json",
+  "ignore": [
+    "src/data/*.db",
+    "src/data/*.sqlite",
+    "*.db",
+    "*.sqlite",
+    "node_modules/**",
+    "data/**",
+    "logs/**"
+  ],
+  "delay": 1000
+}

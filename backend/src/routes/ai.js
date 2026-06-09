@@ -1,19 +1,16 @@
 'use strict';
 
-const express    = require('express');
-const router     = express.Router();
-const { auth }   = require('../middleware/auth');
-const aiCtrl     = require('../controllers/aiController');
+const express = require('express');
+const router  = express.Router();
+const { asyncHandler } = require('../middleware/error');
+const { auth } = require('../middleware/auth');
+const aiCtrl = require('../controllers/aiController');
 
 router.use(auth);
 
-// POST /api/ai/chat  —— 宠物 AI 对话（SSE 流式输出）
-router.post('/chat', aiCtrl.chat);
-
-// POST /api/ai/memory  —— 向 RAG 记忆库存入用户信息
-router.post('/memory', aiCtrl.addMemory);
-
-// GET  /api/ai/memory  —— 查询宠物记忆（调试用）
-router.get('/memory', aiCtrl.listMemory);
+router.post('/chat',      asyncHandler(aiCtrl.chat));
+router.post('/memory',    asyncHandler(aiCtrl.addMemory));
+router.get('/memory',     asyncHandler(aiCtrl.listMemory));
+router.get('/dialogues',  asyncHandler(aiCtrl.listDialogues));
 
 module.exports = router;

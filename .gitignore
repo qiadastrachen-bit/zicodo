@@ -53,11 +53,6 @@ coverage/
 .DS_Store
 Thumbs.db
 
-# ─── Docker 相关（可选：Dockerfile 保留，数据不保留）
-*.dockerignore
-.dockerignore
-# Docker 数据卷（实际容器数据不提交）
-
 # ─── 临时文件 ───────────────────────────
 *.tmp
 *.bak
@@ -65,19 +60,5 @@ Thumbs.db
 .cache/
 .temp/
 
-# ─── 项目专用（根据后端已有 .gitignore 扩展）
-ppt-素材/
-答辩逐字稿.*
-演示视频脚本.md
-小组进度文档.md
-前后端对接说明.md
-字灵项目后端全流程架构与Q&A汇总.md
-文件结构说明.md
-演示规则解读.md
-API文档.md
-openapi.json
-generate_*
-seed_demo.js
-ziling-backend.zip
-云服务器部署全流程详细记录.md
+# ─── WorkBuddy 内部文件 ─────────────────
 .workbuddy/

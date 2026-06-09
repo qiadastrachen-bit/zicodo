@@ -21,8 +21,3 @@ generate_*
 seed_demo.js
 # WorkBuddy内部文件
 .workbuddy/
-
-# 部署用临时文件
-ziling-backend/
-ziling-backend.zip
-云服务器部署全流程详细记录.md

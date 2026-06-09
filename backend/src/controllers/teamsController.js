@@ -1,21 +1,56 @@
 'use strict';
 
-const { Team, User }      = require('../models');
-const { ok, fail, genInviteCode } = require('../utils/helpers');
+const { Op } = require('sequelize');
+const { Team, User, TeamMember } = require('../models');
+const { ok, genInviteCode, isValidInviteCode } = require('../utils/helpers');
+const { AppError, CODES } = require('../errors/AppError');
 
-/**
- * POST /api/teams
- * 创建队伍
- * body: { name, description? }
- */
+const MEMBER_ATTRS = ['id', 'username', 'nickname', 'totalPoints'];
+
+function memberRole(member, leaderId) {
+  const via = member.TeamMember?.role;
+  if (via) return via.includes('组长') ? '组长' : via;
+  return member.id === leaderId ? '组长' : '成员';
+}
+
+/** 将 Sequelize Team 实例格式化为 API 响应 */
+function formatTeam(team) {
+  const t = team.toJSON ? team.toJSON() : team;
+  return {
+    ...t,
+    members: (t.members || []).map((m) => ({
+      id: m.id,
+      username: m.username,
+      nickname: m.nickname,
+      totalPoints: m.totalPoints,
+      role: memberRole(m, t.leaderId),
+    })),
+  };
+}
+
+async function loadTeamWithMembers(teamId) {
+  return Team.findByPk(teamId, {
+    include: [{
+      model: User,
+      as: 'members',
+      attributes: MEMBER_ATTRS,
+      through: { attributes: ['role'] },
+    }],
+  });
+}
+
+async function getUserTeamIds(userId) {
+  const rows = await TeamMember.findAll({
+    where: { userId },
+    attributes: ['teamId'],
+  });
+  return rows.map((r) => r.teamId);
+}
+
 async function createTeam(req, res) {
   const { name, description } = req.body;
-  if (!name) return fail(res, '队伍名称不能为空');
+  if (!name) throw new AppError(CODES.TEAM_NAME_EMPTY);
 
-  // 已有队伍则不能再建
-  if (req.user.teamId) return fail(res, '你已在一个队伍中，请先退出再创建');
-
-  // 生成唯一邀请码
   let inviteCode;
   let retry = 0;
   do {
@@ -26,131 +61,134 @@ async function createTeam(req, res) {
   } while (retry < 10);
 
   const team = await Team.create({
-    name,
-    description,
-    leaderId:   req.user.id,
-    inviteCode,
+    name, description, leaderId: req.user.id, inviteCode,
   });
 
-  // 队长加入队伍
-  await User.update({ teamId: team.id }, { where: { id: req.user.id } });
+  await TeamMember.create({
+    userId: req.user.id,
+    teamId: team.id,
+    role: '组长',
+  });
 
-  return ok(res, team, '队伍创建成功', 201);
+  const full = await loadTeamWithMembers(team.id);
+  return ok(res, formatTeam(full), '队伍创建成功', 201);
 }
 
-/**
- * POST /api/teams/join
- * 用邀请码加入队伍
- * body: { inviteCode }
- */
 async function joinTeam(req, res) {
   const { inviteCode } = req.body;
-  if (!inviteCode) return fail(res, '邀请码不能为空');
+  if (!inviteCode) throw new AppError(CODES.INVITE_CODE_EMPTY);
 
-  if (req.user.teamId) return fail(res, '你已在一个队伍中，请先退出');
+  const code = String(inviteCode).trim();
+  if (!isValidInviteCode(code)) throw new AppError(CODES.INVALID_INVITE_CODE);
 
   const team = await Team.findOne({
-    where: { inviteCode: inviteCode.toUpperCase() },
-    include: [{ model: User, as: 'members', attributes: ['id'] }],
+    where: { inviteCode: code },
+    include: [{
+      model: User,
+      as: 'members',
+      attributes: ['id'],
+      through: { attributes: [] },
+    }],
   });
-  if (!team) return fail(res, '邀请码无效');
+  if (!team) throw new AppError(CODES.INVALID_INVITE_CODE);
+  if (team.members.length >= team.maxMembers) throw new AppError(CODES.TEAM_FULL);
 
-  if (team.members.length >= team.maxMembers) {
-    return fail(res, '队伍已满');
-  }
+  const already = team.members.some((m) => m.id === req.user.id);
+  if (already) throw new AppError(CODES.ALREADY_IN_TEAM);
 
-  await User.update({ teamId: team.id }, { where: { id: req.user.id } });
+  await TeamMember.create({
+    userId: req.user.id,
+    teamId: team.id,
+    role: '成员',
+  });
 
-  return ok(res, { teamId: team.id, teamName: team.name }, '加入队伍成功');
+  const full = await loadTeamWithMembers(team.id);
+  return ok(res, formatTeam(full), '加入队伍成功');
 }
 
-/**
- * POST /api/teams/leave
- * 退出队伍（队长退出会解散队伍）
- */
 async function leaveTeam(req, res) {
-  if (!req.user.teamId) return fail(res, '你不在任何队伍中');
+  const { teamId } = req.body;
+  if (!teamId) throw new AppError(CODES.BAD_REQUEST, '请指定要退出的团队');
 
-  const team = await Team.findByPk(req.user.teamId, {
-    include: [{ model: User, as: 'members', attributes: ['id'] }],
+  const membership = await TeamMember.findOne({
+    where: { userId: req.user.id, teamId },
   });
+  if (!membership) throw new AppError(CODES.NOT_IN_TEAM);
+
+  const team = await Team.findByPk(teamId, {
+    include: [{ model: User, as: 'members', attributes: ['id'], through: { attributes: [] } }],
+  });
+
   if (!team) {
-    await User.update({ teamId: null }, { where: { id: req.user.id } });
+    await membership.destroy();
     return ok(res, null, '已退出');
   }
 
   if (team.leaderId === req.user.id) {
-    // 队长退出 → 解散队伍，所有成员 teamId 置空
-    await User.update({ teamId: null }, { where: { teamId: team.id } });
+    await TeamMember.destroy({ where: { teamId: team.id } });
     await team.destroy();
     return ok(res, null, '队伍已解散');
   }
 
-  await User.update({ teamId: null }, { where: { id: req.user.id } });
+  await membership.destroy();
   return ok(res, null, '已退出队伍');
 }
 
-/**
- * GET /api/teams/mine
- * 查看自己所在队伍详情 + 成员列表
- */
-async function getMyTeam(req, res) {
-  if (!req.user.teamId) return fail(res, '你不在任何队伍中', 404);
+/** GET /api/teams — 当前用户加入的全部团队 */
+async function listMyTeams(req, res) {
+  const teamIds = await getUserTeamIds(req.user.id);
+  if (!teamIds.length) return ok(res, { list: [] });
 
-  const team = await Team.findByPk(req.user.teamId, {
+  const teams = await Team.findAll({
+    where: { id: { [Op.in]: teamIds } },
     include: [{
       model: User,
       as: 'members',
-      attributes: ['id', 'username', 'totalPoints'],
+      attributes: MEMBER_ATTRS,
+      through: { attributes: ['role'] },
     }],
+    order: [['createdAt', 'DESC']],
   });
-  if (!team) return fail(res, '队伍不存在', 404);
 
-  return ok(res, team);
+  return ok(res, { list: teams.map(formatTeam) });
 }
 
-/**
- * GET /api/teams/ranking
- * 团队积分 PK 排行榜（前20队）
- */
+async function getMyTeam(req, res) {
+  const teamIds = await getUserTeamIds(req.user.id);
+  if (!teamIds.length) return ok(res, null);
+
+  const team = await loadTeamWithMembers(teamIds[0]);
+  return ok(res, team ? formatTeam(team) : null);
+}
+
 async function teamRanking(req, res) {
-  // 以队伍总积分（member totalPoints 之和）实时计算
   const teams = await Team.findAll({
-    include: [{
-      model: User,
-      as: 'members',
-      attributes: ['totalPoints'],
-    }],
+    include: [{ model: User, as: 'members', attributes: ['totalPoints'], through: { attributes: [] } }],
     order: [['totalPoints', 'DESC']],
     limit: 20,
   });
 
-  // 实时汇总
   const ranked = teams.map((team, idx) => {
     const t = team.toJSON();
     t.totalPoints = t.members.reduce((sum, m) => sum + (m.totalPoints || 0), 0);
     t.memberCount = t.members.length;
-    delete t.members; // 排行榜不需要详细成员
+    delete t.members;
     return { rank: idx + 1, ...t };
   }).sort((a, b) => b.totalPoints - a.totalPoints);
 
   return ok(res, ranked);
 }
 
-/**
- * GET /api/teams/:id
- * 查看指定队伍（公开信息）
- */
 async function getTeam(req, res) {
-  const team = await Team.findByPk(req.params.id, {
-    include: [{
-      model: User,
-      as: 'members',
-      attributes: ['id', 'username', 'totalPoints'],
-    }],
-  });
-  if (!team) return fail(res, '队伍不存在', 404);
-  return ok(res, team);
+  const team = await loadTeamWithMembers(req.params.id);
+  if (!team) throw new AppError(CODES.TEAM_NOT_FOUND);
+
+  const isMember = team.members.some((m) => m.id === req.user.id);
+  if (!isMember) throw new AppError(CODES.FORBIDDEN);
+
+  return ok(res, formatTeam(team));
 }
 
-module.exports = { createTeam, joinTeam, leaveTeam, getMyTeam, teamRanking, getTeam };
+module.exports = {
+  createTeam, joinTeam, leaveTeam, listMyTeams, getMyTeam, teamRanking, getTeam,
+};

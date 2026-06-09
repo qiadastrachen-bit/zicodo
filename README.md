@@ -149,8 +149,8 @@
 | **Web 框架** | Express.js | 4.x | HTTP 服务和路由 |
 | **数据库** | SQLite 3 | - | 轻量关系型数据库 |
 | **ORM** | Sequelize | 6.x | 数据库 ORM 框架 |
-| **认证** | Session / JWT | - | 用户认证和会话管理 |
-| **密码加密** | bcrypt | 5.x | 密码安全加密 |
+| **认证** | JWT (bcryptjs + jsonwebtoken) | - | Token 认证（无 Session） |
+| **密码加密** | bcryptjs | 2.x | 密码安全加密（bcryptjs 轻量实现） |
 | **AI 集成** | DeepSeek API | - | 智能对话服务 |
 
 ### 3.4 核心设计原则
@@ -510,151 +510,131 @@ showToast('操作成功', 'success')
 
 ```
 zicodo/
-├── backend/                          # 后端项目
-│   ├── src/
-│   │   ├── controllers/              # 控制器（业务逻辑）
-│   │   │   ├── authController.js     # 认证相关
-│   │   │   ├── taskController.js     # 任务管理
-│   │   │   ├── petController.js      # 宠物管理
-│   │   │   ├── pointController.js    # 积分管理
-│   │   │   ├── teamController.js     # 团队管理
-│   │   │   ├── aiController.js       # AI 对话
-│   │   │   └── userController.js     # 用户信息
-│   │   ├── models/                   # 数据模型
+├── backend/                          # 后端 + 前端（同目录，便于协作开发）
+│   ├── src/                          # 后端源码（Express + Sequelize）
+│   │   ├── controllers/              # 控制器（6个模块）
+│   │   │   ├── authController.js     # 认证：register / login / me
+│   │   │   ├── tasksController.js    # 任务：CRUD + 打卡
+│   │   │   ├── petsController.js     # 宠物：getMyPet / renamePet / updateMood
+│   │   │   ├── pointsController.js   # 积分：balance / logs / leaderboard
+│   │   │   ├── teamsController.js    # 团队：创建/加入/退出/详情/排行
+│   │   │   └── aiController.js       # AI：chat（SSE）/ memory
+│   │   ├── models/                   # Sequelize 数据模型
 │   │   │   ├── User.js               # 用户模型
 │   │   │   ├── Task.js               # 任务模型
 │   │   │   ├── Pet.js                # 宠物模型
 │   │   │   ├── PointLog.js           # 积分记录
-│   │   │   └── Team.js               # 团队模型
-│   │   ├── routes/                   # 路由定义
-│   │   │   ├── auth.js
-│   │   │   ├── tasks.js
-│   │   │   ├── pets.js
-│   │   │   ├── points.js
-│   │   │   ├── teams.js
-│   │   │   ├── ai.js
-│   │   │   └── user.js
+│   │   │   ├── Team.js               # 团队模型
+│   │   │   └── index.js              # 模型聚合导出
+│   │   ├── routes/                   # 路由定义（7个路由模块）
+│   │   │   ├── auth.js               # /api/auth 前缀
+│   │   │   ├── tasks.js              # /api/tasks 前缀
+│   │   │   ├── pets.js               # /api/pets 前缀
+│   │   │   ├── points.js             # /api/points 前缀
+│   │   │   ├── teams.js              # /api/teams 前缀
+│   │   │   ├── ai.js                 # /api/ai 前缀
+│   │   │   └── ziling.js             # /ziling/api 前缀（旧版对接通道）
 │   │   ├── middleware/               # 中间件
-│   │   │   ├── auth.js               # 认证中间件
-│   │   │   └── logger.js             # 日志中间件
+│   │   │   └── auth.js               # JWT 认证中间件（唯一中间件）
 │   │   ├── utils/                    # 工具函数
-│   │   │   ├── encrypt.js            # 加密工具
-│   │   │   ├── validator.js          # 数据验证
-│   │   │   └── ai.js                 # AI 工具
-│   │   ├── config/                   # 配置
-│   │   │   └── database.js           # 数据库配置
-│   │   ├── app.js                    # Express 应用实例
-│   │   └── server.js                 # 服务器启动入口
-│   ├── data/                         # SQLite 数据库文件（自动生成）
-│   ├── package.json
-│   └── README.md
+│   │   │   ├── helpers.js            # 通用工具：ok/fail 响应包装、时间格式化等
+│   │   │   └── ragService.js         # RAG 记忆服务（AI 对话上下文）
+│   │   ├── db/                       # 数据库相关
+│   │   │   └── connection.js         # Sequelize 连接与初始化（无 src/config/）
+│   │   └── app.js                    # Express 应用入口（集成了启动逻辑，无 server.js）
+│   ├── data/                         # SQLite 数据库文件目录（运行时自动生成）
+│   ├── .env.example                  # 环境变量模板
+│   ├── package.json                  # 后端依赖
+│   ├── Dockerfile                    # 后端 Docker 镜像
+│   └── nginx.conf                    # Nginx 反向代理配置
 │
-├── frontend/                         # 前端项目
-│   ├── src/
-│   │   ├── pages/                    # 页面组件
-│   │   │   ├── auth/                 # 认证相关页面
-│   │   │   │   ├── LoginPage.vue
-│   │   │   │   ├── RegisterPage.vue
-│   │   │   │   ├── AuthPage.vue
-│   │   │   │   └── SplashPage.vue
-│   │   │   ├── home/                 # 首页
-│   │   │   │   └── PetHomePage.vue
-│   │   │   ├── tasks/                # 任务管理页面
-│   │   │   │   ├── TaskListPage.vue
-│   │   │   │   ├── TaskCreatePage.vue
-│   │   │   │   ├── TaskDetailPage.vue
-│   │   │   │   └── CalendarPage.vue
-│   │   │   ├── team/                 # 团队页面
-│   │   │   │   ├── TeamListPage.vue
-│   │   │   │   └── TeamDetailPage.vue
-│   │   │   ├── interact/             # 互动页面
-│   │   │   │   └── InteractPage.vue
-│   │   │   ├── notifications/        # 通知中心
-│   │   │   │   └── NotificationPage.vue
-│   │   │   └── profile/              # 个人中心
-│   │   │       ├── ProfilePage.vue
-│   │   │       ├── ProfileEditPage.vue
-│   │   │       ├── PetSettingsPage.vue
-│   │   │       ├── PointsPage.vue
-│   │   │       ├── SettingsPage.vue
-│   │   │       ├── ThemePage.vue
-│   │   │       ├── AboutPage.vue
-│   │   │       ├── AboutFeatures.vue
-│   │   │       ├── AboutHelp.vue
-│   │   │       ├── AboutContact.vue
-│   │   │       ├── DialogueHistoryPage.vue
-│   │   │       └── AchievementsPage.vue
-│   │   ├── components/               # 可复用组件
-│   │   │   ├── common/               # 通用基础组件（13个）
-│   │   │   ├── pet/                  # 宠物相关组件（7个）
-│   │   │   ├── schedule/             # 任务团队组件（12个）
-│   │   │   ├── game/                 # 游戏组件（3个）
-│   │   │   └── notifications/        # 通知组件（1个）
-│   │   ├── stores/                   # Pinia 状态管理（7个 Store）
-│   │   │   ├── user.js               # 用户信息
-│   │   │   ├── pet.js                # 宠物状态
-│   │   │   ├── tasks.js              # 任务列表
-│   │   │   ├── teams.js              # 团队信息
-│   │   │   ├── schedule.js           # 日程状态
-│   │   │   ├── point.js              # 积分状态
-│   │   │   └── theme.js              # 主题状态
-│   │   ├── router/                   # 路由配置
-│   │   │   ├── index.js              # 主路由
-│   │   │   └── guards.js             # 路由守卫
-│   │   ├── api/                      # API 接口层（10个模块）
-│   │   │   ├── request.js            # 请求封装
-│   │   │   ├── auth.js               # 认证接口
-│   │   │   ├── user.js               # 用户接口
-│   │   │   ├── task.js               # 任务接口
-│   │   │   ├── pet.js                # 宠物接口
-│   │   │   ├── point.js              # 积分接口
-│   │   │   ├── team.js               # 团队接口
-│   │   │   ├── member.js             # 成员接口
-│   │   │   └── ai.js                 # AI 对话接口
-│   │   ├── assets/                   # 静态资源
-│   │   │   ├── logo_clear.png        # 项目LOGO
-│   │   │   ├── logo_vector_strict.svg # 矢量LOGO
-│   │   │   ├── default-avatar.png    # 默认头像
-│   │   │   ├── hero.png              # 宠物形象
-│   │   │   ├── blink.png             # 眨眼动画帧
-│   │   │   └── vue.svg / vite.svg    # 技术展示图标
-│   │   ├── layout/                   # 布局组件
-│   │   │   ├── AppLayout.vue         # 主应用布局（带底部导航）
-│   │   │   ├── AuthLayout.vue        # 认证页面布局
-│   │   │   └── SplashLayout.vue      # 启动页布局
-│   │   ├── App.vue                   # 根组件
-│   │   ├── main.js                   # 应用入口
-│   │   └── styles/                   # 全局样式
-│   │       ├── main.css              # 主样式文件
-│   │       ├── variables.css         # CSS 变量（色彩/间距/圆角）
-│   │       └── reset.css             # 样式重置
-│   ├── public/                       # 公开静态资源
-│   │   ├── icons.svg                 # 自定义图标精灵（社交图标等）
-│   │   ├── favicon.svg               # 浏览器图标
-│   │   └── manifest.json             # PWA 应用清单
-│   ├── index.html                    # HTML 入口
-│   ├── vite.config.js                # Vite 构建配置
-│   ├── package.json                  # 前端依赖
-│   └── README.md
+│   └── frontend/                     # 前端项目（Vue 3 + Vite）
+│       ├── src/
+│       │   ├── pages/                # 页面组件
+│       │   │   ├── auth/             # 认证页面（LoginPage, RegisterPage, AuthPage, SplashPage）
+│       │   │   ├── home/             # 首页 / 宠物主页
+│       │   │   ├── interact/         # AI 互动页面
+│       │   │   ├── tasks/            # 任务页面（TaskListPage, TaskCreatePage, TaskDetailPage, CalendarPage）
+│       │   │   ├── team/             # 团队页面（TeamListPage, TeamDetailPage, TeamRankingPage）
+│       │   │   ├── notifications/    # 通知中心（NotificationPage）
+│       │   │   └── profile/          # 个人中心（11个页面：Profile/PetSettings/Points/Theme/Settings/About*4/DialogueHistory/Achievements）
+│       │   ├── components/           # 可复用组件（4大类，共36+个组件）
+│       │   │   ├── common/           # 通用基础组件（ZlButton, ZlCard, ZlModal, ZlInput, ZlTopBar, ZlTabbar, ZlListItem, ZlToast, ZlIcon, EmptyState, LoadingState, ErrorState, EmojiCarousel）
+│       │   │   ├── pet/              # 宠物组件（PetAvatar, MegacharDisplay, PointsDisplay, StreamMessage, UserMessageBubble, QuickReplyBubble, KaomojiCarousel）
+│       │   │   ├── schedule/         # 任务团队组件（TaskCard, TaskForm, TeamCard, TeamDetail, TeamTaskPage, TeamCreateForm, JoinTeamForm, MemberList, CheckInTimer, RecurrencePickerSheet, ToggleSwitch, EmptyState）
+│       │   │   ├── game/             # 游戏组件（GameBoard, GameCell, GameComplete）
+│       │   │   └── notifications/    # 通知组件（RingtonPickerSheet）
+│       │   ├── stores/               # Pinia 状态管理（7个 Store）
+│       │   │   ├── user.js           # 用户信息
+│       │   │   ├── pet.js            # 宠物状态
+│       │   │   ├── task.js           # 任务状态（注意：单数，非 tasks.js）
+│       │   │   ├── teams.js          # 团队信息
+│       │   │   ├── schedule.js       # 日程状态
+│       │   │   ├── point.js          # 积分状态
+│       │   │   └── theme.js          # 主题状态
+│       │   ├── api/                  # API 接口层（9个模块 + request封装）
+│       │   │   ├── request.js        # Axios 封装（拦截器/错误处理）
+│       │   │   ├── auth.js           # 认证接口
+│       │   │   ├── user.js           # 用户接口
+│       │   │   ├── task.js           # 任务接口
+│       │   │   ├── pet.js            # 宠物接口
+│       │   │   ├── point.js          # 积分接口
+│       │   │   ├── team.js           # 团队接口
+│       │   │   ├── ai.js             # AI 对话接口
+│       │   │   └── ziling.js         # /ziling/api 对接接口
+│       │   ├── config/               # 前端配置
+│       │   │   ├── api.js            # API 基础配置
+│       │   │   ├── constants.js      # 应用常量
+│       │   │   └── theme.js          # 主题配置
+│       │   ├── game/                 # 游戏逻辑
+│       │   │   ├── chars.js          # 汉字素材
+│       │   │   └── game-logic.js     # 游戏判定逻辑
+│       │   ├── utils/                # 工具函数
+│       │   │   ├── date.js           # 日期时间工具
+│       │   │   └── yanwenzi.js       # 颜文字工具
+│       │   ├── layout/               # 布局组件
+│       │   │   ├── AppLayout.vue     # 主应用布局（带底部导航 Tabbar）
+│       │   │   ├── AuthLayout.vue    # 认证页面布局
+│       │   │   └── SplashLayout.vue  # 启动页布局
+│       │   ├── styles/               # 全局样式
+│       │   │   ├── global.css        # 全局样式（注意：非 main.css）
+│       │   │   ├── reset.css         # 样式重置
+│       │   │   └── tokens.css        # Design Tokens（色彩/间距/圆角变量，非 variables.css）
+│       │   ├── router/               # 路由配置
+│       │   │   ├── index.js          # 主路由定义
+│       │   │   └── guards.js         # 路由守卫
+│       │   ├── assets/               # 静态资源
+│       │   │   ├── logo_clear.png
+│       │   │   ├── logo_vector_strict.svg
+│       │   │   ├── default-avatar.png
+│       │   │   ├── hero.png
+│       │   │   ├── blink.png
+│       │   │   └── vue.svg / vite.svg
+│       │   ├── App.vue               # 根组件
+│       │   ├── main.js               # 应用入口
+│       │   └── registerSW.js         # PWA Service Worker 注册
+│       ├── public/                   # 公开静态资源
+│       │   ├── fonts/                # 字体文件（阿里巴巴普惠体）
+│       │   ├── icons/                # PWA 图标（各尺寸）
+│       │   ├── logo/                 # Logo 素材
+│       │   ├── ringtones/            # 铃声资源（alarm/notification/sfx）
+│       │   ├── splash/               # 启动页资源
+│       │   ├── favicon.svg           # 浏览器图标
+│       │   ├── icons.svg             # 图标精灵
+│       │   ├── manifest.json         # PWA 应用清单
+│       │   └── service-worker.js     # Service Worker
+│       ├── index.html                # HTML 入口
+│       ├── vite.config.js            # Vite 构建配置
+│       ├── package.json              # 前端依赖
+│       └── Dockerfile                # 前端 Docker 镜像（Nginx）
 │
-├── docs/                             # 项目文档
-│   ├── 01-项目总纲/                  # 架构和设计文档
-│   │   ├── 项目组件库与图标库完整信息.md
-│   │   └── 前端开发总任务书.md
-│   ├── 02-执行计划与记录/            # 开发计划和执行记录
-│   │   ├── 14-云服务器部署指南.md
-│   │   └── ... (其他执行记录)
-│   └── 03-API文档/                   # 接口文档
-│
-├── docker/                           # Docker 相关配置（部署用）
-│   ├── frontend/Dockerfile           # 前端 Dockerfile
-│   ├── backend/Dockerfile            # 后端 Dockerfile
-│   └── docker-compose.yml            # 容器编排
+├── 项目用品/                          # 设计素材/品牌资源（非代码部分）
+│   ├── thezilinglogo/               # Logo 相关素材
+│   └── ziling-splash-package/       # 启动页组件包
 │
 ├── .gitignore                        # Git 忽略规则
-├── docker-compose.yml                # 主 Docker Compose 配置
-├── README.md                         # 本文件（项目主文档）
-└── package.json                      # 根项目配置（可选）
+├── docker-compose.yml                # 主 Docker Compose 配置（部署用）
+└── README.md                         # 本文件（项目主文档）
 ```
 
 ### 6.2 前端核心架构说明
@@ -760,7 +740,7 @@ npm list --depth=0
 #### 步骤 3：安装前端依赖
 
 ```bash
-cd ../frontend
+cd frontend                # 注意：前端在根目录下的 frontend/，不在 backend/frontend/
 npm install
 
 # 验证安装
@@ -779,8 +759,7 @@ HOST=0.0.0.0
 # 数据库配置（SQLite 无需额外配置）
 DB_PATH=./data/zicodo.db
 
-# 安全配置
-SESSION_SECRET=your-session-secret-key-change-in-production
+# 安全配置（注意：项目只使用 JWT，不使用 Session）
 JWT_SECRET=your-jwt-secret-key-change-in-production
 
 # AI 配置（可选）
@@ -817,7 +796,7 @@ cd backend
 npm run dev
 # 服务将运行在 http://localhost:3000
 
-# 终端 2：启动前端
+# 终端 2：启动前端（前端在根目录下的 frontend/）
 cd frontend
 npm run dev
 # 前端将运行在 http://localhost:5173
@@ -891,7 +870,7 @@ npm run seed
 #### 前端构建
 
 ```bash
-cd frontend
+cd frontend                  # 注意：前端在根目录下的 frontend/，不在 backend/frontend/
 
 # 清理旧的构建产物
 rm -rf dist
@@ -940,8 +919,9 @@ npm start
 | **基础 URL** | `http://localhost:3000/api` |
 | **协议** | HTTP / HTTPS |
 | **数据格式** | JSON (UTF-8 编码) |
-| **认证方式** | Session Cookie / JWT Token |
+| **认证方式** | JWT Bearer Token（无 Session） |
 | **字符编码** | UTF-8 |
+| **旧版对接通道** | `/ziling/api` 前缀（保留，用于历史功能） |
 
 ### 9.2 通用响应格式
 
@@ -986,65 +966,76 @@ npm start
 
 ### 9.3 接口列表（节选）
 
-完整 API 文档请参见 `docs/03-API文档/` 目录。
+以下路由为实际实现的接口，与 `backend/src/routes/` 中的文件一一对应。
 
 #### 认证模块 (Auth)
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/auth/login` | 用户登录 | 公开 |
 | POST | `/api/auth/register` | 用户注册 | 公开 |
-| POST | `/api/auth/logout` | 退出登录 | 需要登录 |
+| POST | `/api/auth/login` | 用户登录 | 公开 |
 | GET | `/api/auth/me` | 获取当前用户信息 | 需要登录 |
+| ⚠️ | `/api/auth/logout` | 未实现（前端清除本地 token 即可） | - |
 
 #### 任务模块 (Tasks)
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
-| GET | `/api/tasks` | 获取任务列表 | 需要登录 |
-| POST | `/api/tasks` | 创建新任务 | 需要登录 |
+| GET | `/api/tasks/` | 获取任务列表 | 需要登录 |
+| POST | `/api/tasks/` | 创建新任务 | 需要登录 |
 | GET | `/api/tasks/:id` | 获取任务详情 | 需要登录 |
 | PUT | `/api/tasks/:id` | 更新任务信息 | 需要登录 |
 | DELETE | `/api/tasks/:id` | 删除任务 | 需要登录 |
 | POST | `/api/tasks/:id/check` | 打卡/完成任务 | 需要登录 |
-| GET | `/api/tasks/calendar` | 获取日历视图数据 | 需要登录 |
+| ⚠️ | `/api/tasks/calendar` | 未实现（日历数据由前端本地聚合生成） | - |
 
 #### 宠物模块 (Pets)
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
-| GET | `/api/pets` | 获取宠物信息 | 需要登录 |
-| POST | `/api/pets` | 创建/初始化宠物 | 需要登录 |
-| PUT | `/api/pets/:id` | 更新宠物状态 | 需要登录 |
-| POST | `/api/pets/:id/interact` | 互动操作 | 需要登录 |
+| GET | `/api/pets/mine` | 获取当前用户宠物信息 | 需要登录 |
+| PUT | `/api/pets/mine/name` | 修改宠物名字 | 需要登录 |
+| PUT | `/api/pets/mine/mood` | 修改宠物心情 | 需要登录 |
+| GET | `/api/pets/:userId` | 获取其他用户宠物信息 | 需要登录 |
+| ⚠️ | `/api/pets/` | 未实现（直接通过 /mine 获取） | - |
 
 #### 积分模块 (Points)
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
-| GET | `/api/points` | 获取当前积分 | 需要登录 |
-| GET | `/api/points/logs` | 获取积分记录 | 需要登录 |
-| GET | `/api/points/ranking` | 团队积分排名 | 需要登录 |
+| GET | `/api/points/balance` | 获取当前积分余额 | 需要登录 |
+| GET | `/api/points/logs` | 获取积分变动记录 | 需要登录 |
+| GET | `/api/points/leaderboard` | 积分排行榜（团队内/全局） | 需要登录 |
 
 #### 团队模块 (Teams)
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
-| GET | `/api/teams` | 获取团队列表 | 需要登录 |
-| POST | `/api/teams` | 创建团队 | 需要登录 |
-| GET | `/api/teams/:id` | 获取团队详情 | 需要登录 |
+| POST | `/api/teams/` | 创建团队 | 需要登录 |
 | POST | `/api/teams/join` | 通过邀请码加入团队 | 需要登录 |
-| POST | `/api/teams/:id/leave` | 退出团队 | 需要登录 |
-| GET | `/api/teams/:id/members` | 获取团队成员 | 需要登录 |
-| GET | `/api/teams/:id/tasks` | 获取团队共享任务 | 需要登录 |
+| POST | `/api/teams/leave` | 退出当前团队 | 需要登录 |
+| GET | `/api/teams/mine` | 获取当前用户所在团队 | 需要登录 |
+| GET | `/api/teams/ranking` | 团队排行榜 | 需要登录 |
+| GET | `/api/teams/:id` | 获取团队详情 | 需要登录 |
 
 #### AI 对话模块 (AI)
 
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
-| POST | `/api/ai/chat` | 发送消息（支持 SSE 流式） | 需要登录 |
-| GET | `/api/ai/history` | 获取对话历史 | 需要登录 |
-| POST | `/api/ai/config` | 配置 API Key | 需要登录 |
+| POST | `/api/ai/chat` | AI 对话（SSE 流式响应） | 需要登录 |
+| POST | `/api/ai/memory` | 添加/更新 RAG 记忆 | 需要登录 |
+| GET | `/api/ai/memory` | 查询当前用户的记忆列表 | 需要登录 |
+| ⚠️ | `/api/ai/history` | 未实现（对话历史由前端本地管理） | - |
+| ⚠️ | `/api/ai/config` | 未实现（API Key 由后端环境变量配置） | - |
+
+#### 旧版对接通道 (Ziling - 保留)
+
+| 方法 | 路径 | 说明 | 权限 |
+|------|------|------|------|
+| GET | `/ziling/api/ping` | 健康检查（旧版） | 公开 |
+| POST | `/ziling/api/schedule` | 日程反馈（生成陪伴语） | 可选登录 |
+| POST | `/ziling/api/chat` | 旧版对话接口（返回 JSON，非 SSE） | 可选登录 |
+| POST | `/ziling/api/validate` | 组词游戏判定（本地词库 + LLM 兜底） | 公开 |
 
 ---
 

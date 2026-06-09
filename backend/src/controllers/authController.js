@@ -1,105 +1,18 @@
 'use strict';
 
+/**
+ * 认证控制器
+ *
+ * 错误处理：所有业务异常统一抛 AppError，由全局 error handler 输出 JSON。
+ * 注意：register / login / autoLogin / me
+ */
+
 const bcrypt = require('bcryptjs');
 const jwt    = require('jsonwebtoken');
 const { User, Pet } = require('../models');
-const { ok, fail } = require('../utils/helpers');
+const { ok, petDisplayName } = require('../utils/helpers');
+const { AppError, CODES }    = require('../errors/AppError');
 
-/**
- * POST /api/auth/register
- * body: { username, email, password }
- */
-async function register(req, res) {
-  const { username, email, password, nickname } = req.body;
-
-  if (!username || !password) {
-    return fail(res, '用户名和密码不能为空');
-  }
-  if (username.length < 2 || username.length > 50) {
-    return fail(res, '用户名长度必须在2-50个字符之间');
-  }
-  const userEmail = email || `${username.slice(0, 50)}@temp.ziling.local`;
-  
-  if (password.length < 6) {
-    return fail(res, '密码至少 6 位');
-  }
-
-  // 检查重复
-  if (email) {
-    const exists = await User.findOne({ where: { email } });
-    if (exists) return fail(res, '该邮箱已注册');
-  }
-
-  const usernameExists = await User.findOne({ where: { username } });
-  if (usernameExists) return fail(res, '用户名已被占用');
-
-  // 创建用户
-  const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({
-    username,
-    email: userEmail,
-    passwordHash,
-    nickname: nickname || username
-  });
-
-  // 自动为新用户创建宠物
-  await Pet.create({ userId: user.id, name: `${username}的宠物` });
-
-  const token = signToken(user);
-  return ok(res, { token, user: safeUser(user) }, '注册成功', 201);
-}
-
-/**
- * POST /api/auth/login
- * body: { email, password }
- */
-async function login(req, res) {
-  const { email, password } = req.body;
-  if (!email || !password) return fail(res, '昵称和密码不能为空');
-
-  // 支持邮箱或昵称登录：先按 email 查，找不到再按 username 查
-  let user = await User.findOne({ where: { email } });
-  if (!user) {
-    user = await User.findOne({ where: { username: email } });
-  }
-
-  // ★ 体验服模式：用户不存在 → 自动注册 + 登录
-  if (!user) {
-    const crypto = require('crypto');
-    const autoEmail = `${crypto.randomUUID()}@ziling.local`;
-
-    const passwordHash = await bcrypt.hash(password, 10);
-    user = await User.create({
-      username: email,           // 昵称（前端传来的 email 字段实际是昵称）
-      email: autoEmail,          // 自动生成邮箱，用户无感知
-      passwordHash,
-      nickname: email
-    });
-
-    // 自动创建宠物
-    await Pet.create({ userId: user.id, name: `${email}的宠物` });
-
-    // 签发 token，注册后自动登录
-    const token = signToken(user);
-    return ok(res, { token, user: safeUser(user) }, '注册并登录成功', 201);
-  }
-
-  // 用户已存在，验证密码
-  const match = await bcrypt.compare(password, user.passwordHash);
-  if (!match) return fail(res, '密码错误', 401);
-
-  const token = signToken(user);
-  return ok(res, { token, user: safeUser(user) }, '登录成功');
-}
-
-/**
- * GET /api/auth/me  (需要鉴权)
- */
-async function me(req, res) {
-  return ok(res, safeUser(req.user));
-}
-
-// ─── 工具 ─────────────────────────────────────────────────
 function signToken(user) {
   return jwt.sign(
     { id: user.id, username: user.username },
@@ -109,8 +22,83 @@ function signToken(user) {
 }
 
 function safeUser(user) {
-  const { id, username, nickname, totalPoints, teamId, createdAt } = user;
-  return { id, username, nickname, totalPoints, teamId, createdAt };
+  const { id, username, nickname, email, totalPoints, teamId, createdAt } = user;
+  return { id, username, nickname, email, totalPoints, teamId, createdAt };
 }
 
-module.exports = { register, login, me };
+/**
+ * POST /api/auth/register
+ */
+async function register(req, res) {
+  const { username, password, nickname } = req.body;
+
+  if (!username || !password) throw new AppError(CODES.BAD_REQUEST, '用户名和密码不能为空');
+  if (password.length < 6) throw new AppError(CODES.WEAK_PASSWORD);
+
+  const usernameExists = await User.findOne({ where: { username } });
+  if (usernameExists) throw new AppError(CODES.USERNAME_EXISTS);
+
+  const passwordHash = await bcrypt.hash(password, 10);
+  const trimmedNick = nickname && String(nickname).trim() ? String(nickname).trim() : null;
+  const user = await User.create({
+    username, passwordHash, nickname: trimmedNick });
+
+  await Pet.create({ userId: user.id, name: petDisplayName(username, trimmedNick) });
+
+  return ok(res, { token: signToken(user), user: safeUser(user) }, '注册成功', 201);
+}
+
+/**
+ * POST /api/auth/login
+ */
+async function login(req, res) {
+  const { email, username, password } = req.body;
+  const loginName = email || username;
+  if (!loginName || !password) throw new AppError(CODES.BAD_REQUEST, '用户名和密码不能为空');
+
+  let user = await User.findOne({ where: { username: loginName } });
+  if (!user) user = await User.findOne({ where: { email: loginName } });
+  if (!user) throw new AppError(CODES.INVALID_CREDENTIALS);
+
+  const match = await bcrypt.compare(password, user.passwordHash);
+  if (!match) throw new AppError(CODES.INVALID_CREDENTIALS);
+
+  return ok(res, { token: signToken(user), user: safeUser(user) }, '登录成功');
+}
+
+/**
+ * POST /api/auth/auto-login
+ * 无感知注册并登录（老用户直接进入）
+ */
+async function autoLogin(req, res) {
+  const randomStr   = Math.random().toString(36).slice(2, 8);
+  const timestamp   = Date.now().toString(36).slice(-4);
+  const username    = `灵伴_${randomStr}${timestamp}`;
+  const randomPwd   = Math.random().toString(36).slice(2, 12) + 'Aa1!';
+  try {
+    const passwordHash = await bcrypt.hash(randomPwd, 10);
+    const user = await User.create({ username, passwordHash, nickname: null });
+    await Pet.create({ userId: user.id, name: petDisplayName(username, null) });
+    return ok(res, { token: signToken(user), user: safeUser(user) }, '自动登录成功', 201);
+  } catch (err) {
+    if (err && err.name === 'SequelizeUniqueConstraintError') {
+      // 用户名冲突：重试一次
+      const newRandomStr = Math.random().toString(36).slice(2, 10);
+      const newUsername = `灵伴_${newRandomStr}_${Date.now().toString(36)}`;
+      const passwordHash = await bcrypt.hash(Math.random().toString(36).slice(2, 12) + 'Aa1!', 10);
+      const user = await User.create({ username: newUsername, passwordHash, nickname: null });
+      await Pet.create({ userId: user.id, name: petDisplayName(newUsername, null) });
+      return ok(res, { token: signToken(user), user: safeUser(user) }, '自动登录成功', 201);
+    }
+    throw new AppError(CODES.INTERNAL_ERROR, '创建账户失败，请稍后重试');
+  }
+}
+
+/**
+ * GET /api/auth/me
+ */
+async function me(req, res) {
+  return ok(res, safeUser(req.user));
+}
+
+module.exports = { register, login, autoLogin, me };

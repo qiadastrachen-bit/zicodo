@@ -4,7 +4,7 @@ const { Sequelize } = require('sequelize');
 const path = require('path');
 require('dotenv').config();
 
-const dbPath = path.resolve(process.cwd(), process.env.DB_PATH || './data/digital_life.db');
+const dbPath = path.resolve(process.cwd(), process.env.DB_PATH || './data/zicodo.db');
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',

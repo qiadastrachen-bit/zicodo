@@ -2,7 +2,15 @@
 # zicodo 项目 Docker Compose 配置
 # 部署到腾讯云服务器：120.53.11.84
 #
+# ⚠️ 重要：路径说明（严格对应实际目录结构）
+#   - 后端源码位置：  ./backend/     （根目录下的 backend/ 目录，独立目录）
+#   - 前端源码位置：  ./frontend/    （根目录下的 frontend/ 目录，独立目录，不在 backend/ 下！）
+#   - 环境变量文件：  ./backend/.env  （需从 backend/.env.example 复制后修改）
+#   - 后端 Dockerfile: ./backend/Dockerfile
+#   - 前端 Dockerfile: ./frontend/Dockerfile
+#
 # 使用方法：
+#   0. 首次部署：cp backend/.env.example backend/.env  # 并编辑填入实际密钥
 #   1. 在项目根目录执行：docker compose up -d --build
 #   2. 查看状态：docker compose ps
 #   3. 查看日志：docker compose logs -f
@@ -18,8 +26,8 @@ services:
   # ============================================
   frontend:
     build:
-      # 前端 Dockerfile 位置：backend/frontend/
-      context: ./backend/frontend
+      # 前端源码在：frontend/  （根目录下，不在 backend/frontend/ 下！）
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: zicodo-frontend
     restart: unless-stopped
@@ -63,7 +71,8 @@ services:
   # ============================================
   backend:
     build:
-      # 后端 Dockerfile 位置：backend/
+      # 后端源码在：backend/  （注意：不是 backend/ziling-backend/！）
+      # backend/ 目录本身就是后端根目录，内含 src/, package.json, Dockerfile 等
       context: ./backend
       dockerfile: Dockerfile
     container_name: zicodo-backend
@@ -75,6 +84,8 @@ services:
 
     # 数据持久化：
     #   1. 挂载 .env 配置文件（只读）
+    #      ⚠️ 部署前必须执行：cp backend/.env.example backend/.env
+    #      然后编辑 backend/.env，填入实际的 JWT_SECRET 和 DEEPSEEK_API_KEY
     #   2. 挂载 SQLite 数据目录（持久化数据库文件）
     volumes:
       - ./backend/.env:/app/.env:ro
@@ -85,7 +96,7 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
-      - DB_PATH=/app/data/digital_life.db
+      - DB_PATH=/app/data/zicodo.db
 
     # 使用自建网络
     networks:

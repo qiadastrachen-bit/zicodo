@@ -1,31 +1,37 @@
 'use strict';
 
-const jwt = require('jsonwebtoken');
-const { User } = require('../models');
-
 /**
  * JWT 鉴权中间件
- * 验证 Authorization: Bearer <token>，将解码后的 user 挂到 req.user
+ *
+ * 校验 Authorization: Bearer <token>，解码后挂载 req.user。
+ * 鉴权失败统一抛出 AppError，由全局错误中间件输出统一 JSON。
  */
-async function auth(req, res, next) {
-  const header = req.headers['authorization'];
-  if (!header || !header.startsWith('Bearer ')) {
-    return res.status(401).json({ code: 401, message: '未提供认证 Token' });
-  }
 
-  const token = header.slice(7);
+const jwt = require('jsonwebtoken');
+const { User } = require('../models');
+const { AppError, CODES } = require('../errors/AppError');
+
+async function auth(req, _res, next) {
   try {
+    const header = req.headers['authorization'];
+    if (!header || !header.startsWith('Bearer ')) {
+      throw new AppError(CODES.UNAUTHORIZED, '未提供认证 Token');
+    }
+
+    const token = header.slice(7);
     const payload = jwt.verify(token, process.env.JWT_SECRET);
+
     const user = await User.findByPk(payload.id, {
       attributes: ['id', 'username', 'email', 'totalPoints', 'teamId'],
     });
-    if (!user) {
-      return res.status(401).json({ code: 401, message: '用户不存在' });
-    }
+    if (!user) throw new AppError(CODES.USER_NOT_FOUND);
+
     req.user = user;
     next();
   } catch (err) {
-    return res.status(401).json({ code: 401, message: 'Token 无效或已过期' });
+    // 如果是我们主动抛出的 AppError，则直接传递；否则翻译为 INVALID_TOKEN
+    if (err instanceof AppError) return next(err);
+    return next(new AppError(CODES.INVALID_TOKEN, 'Token 无效或已过期'));
   }
 }
 

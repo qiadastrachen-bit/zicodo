@@ -1,0 +1,52 @@
+# ============================================
+# .dockerignore - 前端
+# 排除不必要的文件，加速 Docker 构建
+# ============================================
+
+# 依赖目录
+node_modules
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# 构建产物
+dist
+build
+
+# Git 文件
+.git
+.gitignore
+.gitattributes
+.github
+
+# 编辑器/IDE
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+
+# 临时文件
+*.log
+*.tmp
+*.bak
+.cache
+
+# 测试和文档（可选，如果文档不影响构建可移除）
+coverage
+tests
+docs
+README.md
+*.md
+
+# 开发专用配置
+.vite
+.eslintrc
+.eslintrc.*
+.prettierrc
+.prettierrc.*
+tsconfig*.json
+
+# Docker 相关（避免循环复制）
+Dockerfile
+.dockerignore
